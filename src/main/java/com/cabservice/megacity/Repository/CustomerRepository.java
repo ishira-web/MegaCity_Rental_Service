@@ -8,6 +8,6 @@ import com.cabservice.megacity.Model.Customer;
 @Repository
 public interface CustomerRepository extends MongoRepository<Customer, String> {
 
-    Optional<Object> findByUserName(String userName);
+    Optional<Customer> findByUserName(String userName);
 
 }

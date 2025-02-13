@@ -2,17 +2,19 @@ package com.cabservice.megacity.Model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @Document(collection = "Driver")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Driver {
     
-     @Id
+    @Id
     private String driverID;
     private String driverName;
     private String driverAddress;

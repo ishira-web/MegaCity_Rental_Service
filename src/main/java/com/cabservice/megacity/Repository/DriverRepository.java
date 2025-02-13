@@ -8,6 +8,6 @@ import com.cabservice.megacity.Model.Driver;
 @Repository
 public interface DriverRepository extends MongoRepository<Driver, String> {
 
-    Optional<Object> findByUserName(String userName);
+    Optional<Driver> findByUserName(String userName);
     List<Driver> findByCatID(String catID);
 }
