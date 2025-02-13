@@ -22,15 +22,24 @@ import com.cabservice.megacity.Service.CustomerService;
 @RequestMapping("/customers")
 public class CustomerController {
     
-     @Autowired
+    @Autowired
     private CustomerService customerService;
 
+    /**
+     * Retrieves all customers.
+     * @return A list of all customers.
+     */
     @GetMapping
     public ResponseEntity<List<Customer>> getAllCustomers() {
         List<Customer> customers = customerService.findAll();
         return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 
+    /**
+     * Retrieves a customer by their ID.
+     * @param id The ID of the customer to retrieve.
+     * @return The customer if found, otherwise returns 404 Not Found.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable String id) {
         Optional<Customer> customer = customerService.findById(id);
@@ -38,18 +47,34 @@ public class CustomerController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /**
+     * Creates a new customer.
+     * @param customer The customer details received in the request body.
+     * @return The created customer with HTTP status 201 (Created).
+     */
     @PostMapping
     public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
         Customer createdCustomer = customerService.create(customer);
         return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
     }
 
+    /**
+     * Updates an existing customer.
+     * @param id The ID of the customer to update.
+     * @param customer The updated customer details.
+     * @return The updated customer details with HTTP status 200 (OK).
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Customer> updateCustomer(@PathVariable String id, @RequestBody Customer customer) {
         Customer updatedCustomer = customerService.update(id, customer);
         return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
     }
 
+    /**
+     * Deletes a customer by their ID.
+     * @param id The ID of the customer to delete.
+     * @return A 204 No Content response if the deletion is successful.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCustomer(@PathVariable String id) {
         customerService.delete(id);

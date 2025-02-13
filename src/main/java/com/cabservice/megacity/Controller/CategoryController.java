@@ -18,25 +18,43 @@ import com.cabservice.megacity.Service.CategoryService;
 @RequestMapping("/categories")
 public class CategoryController {
     
-     @Autowired
+    @Autowired
     private CategoryService catService;
 
+    /**
+     * Creates a new category.
+     * @param category The category details received in the request body.
+     * @return The created category.
+     */
+
+     
     @PostMapping("/createcategory")
     @ResponseStatus(HttpStatus.CREATED)
-
     public Category createCategory(@RequestBody Category category) {
         return catService.createCategory(category);
     }
 
+    /**
+     * Retrieves a category by its ID.
+     * @param catID The ID of the category to retrieve.
+     * @return The category details.
+     */
 
     @GetMapping("/{catID}")
     public Category getCategoryById(@PathVariable String catID) {
         return catService.getCategoryById(catID);
     }
 
+    /**
+     * Deletes a category by its ID.
+     * @param catID The ID of the category to delete.
+     * @return A message indicating the deletion status.
+     */
+
+
+
     @DeleteMapping("/{catID}")
     public String deleteCategory(@PathVariable String catID) {
         return catService.deleteCategory(catID);
     }
-
 }

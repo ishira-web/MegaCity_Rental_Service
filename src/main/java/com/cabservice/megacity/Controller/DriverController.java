@@ -1,4 +1,5 @@
 package com.cabservice.megacity.Controller;
+
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,30 +20,65 @@ import com.cabservice.megacity.Service.DriverService;
 @RequestMapping("/drivers")
 public class DriverController {
     
-   @Autowired
-   private DriverService service;
+    @Autowired
+    private DriverService service;
 
-   @PostMapping("/create")
-   @ResponseStatus(HttpStatus.CREATED)
+    /**
+     * Creates a new driver.
+     * @param driver The driver details received in the request body.
+     * @return The created driver.
+     */
+
+     
+    @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
     public Driver createDriver(@RequestBody Driver driver) {
-       return service.createDriver(driver);
-   }
+        return service.createDriver(driver);
+    }
 
-   @GetMapping("/{driverID}")
-   public Driver getDriver(@PathVariable String driverID){
-       return service.getDriverByID(driverID);
-   }
+    /**
+     * Retrieves a driver by their ID.
+     * @param driverID The ID of the driver to retrieve.
+     * @return The driver details.
+     */
 
-   @DeleteMapping("/{driverID}")
-   public String deleteDriver(@PathVariable  String driverID){
-       return service.deleteDriverByID(driverID);
-   }
+
+    @GetMapping("/{driverID}")
+    public Driver getDriver(@PathVariable String driverID) {
+        return service.getDriverByID(driverID);
+    }
+
+    /**
+     * Deletes a driver by their ID.
+     * @param driverID The ID of the driver to delete.
+     * @return A message indicating whether the deletion was successful.
+     */
+
+
+    @DeleteMapping("/{driverID}")
+    public String deleteDriver(@PathVariable String driverID) {
+        return service.deleteDriverByID(driverID);
+    }
+
+    /**
+     * Retrieves a list of drivers based on category ID.
+     * @param catID The category ID to filter drivers.
+     * @return A list of drivers belonging to the specified category.
+     */
+
 
     @GetMapping("/category/{catID}")
     public List<Driver> getDriversByCategoryId(@PathVariable String catID) {
         System.out.println("Received request for drivers with catID: " + catID);
         return service.getDriversByCategoryId(catID);
     }
+
+    /**
+     * Updates an existing driver.
+     * @param driverID The ID of the driver to update.
+     * @param updatedDriver The updated driver details.
+     * @return The updated driver information wrapped in a ResponseEntity.
+     */
 
 
     @PutMapping("/{driverID}")
