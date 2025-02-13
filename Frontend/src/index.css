@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    @font-face {
+        font-family: walsheim;
+        src: url(../public/Fonts/GT-Walsheim-Regular.woff) format("woff");
+    }
+}
+@layer base {
+    @font-face {
+        font-family: simplon;
+        src: url(../public/Fonts/SimplonMono-Regular.woff2)format("woff2");
+    }
+}
+@layer base {
+    @font-face {
+        font-family: roboto;
+        src: url(../public//Fonts/Roboto-Regular.ttf) format(".ttf");
+    }
+}
+
+
+

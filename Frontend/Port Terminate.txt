@@ -1,0 +1,8 @@
+1st Code
+
+netstat -ano | findstr :5173
+
+
+2nd Code 
+
+taskkill /PID 6104 /F (Established Value)
