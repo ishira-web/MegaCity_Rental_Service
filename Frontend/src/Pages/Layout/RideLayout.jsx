@@ -6,6 +6,7 @@ import { Outlet } from 'react-router-dom'
 import Ride2 from '../Ride2'
 import BookingBanner from '../BookingBanner'
 import BannerServices from '../BannerServices'
+import BannerCount from '../Components/BannerCount'
 
 function RideLayout() {
   return (
@@ -15,6 +16,7 @@ function RideLayout() {
         <Ride2/>
         <BannerServices/>
         <BookingBanner/>
+        <BannerCount/>
         <Footer/>
         <Outlet/>
     </div>

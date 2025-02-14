@@ -5,6 +5,7 @@ import Footer from '../Footer'
 import { Outlet } from 'react-router-dom'
 import AboutPage2 from '../../AboutPage2'
 import BannerServices from '../BannerServices'
+import AboutUsBanner from '../Components/AboutUsBanner'
 
 function AboutLayout() {
   return (
@@ -13,6 +14,7 @@ function AboutLayout() {
         <Aboutus/>
         <BannerServices/>
         <AboutPage2/>
+        <AboutUsBanner/>
         <Footer/>
         <Outlet/>
     </div>

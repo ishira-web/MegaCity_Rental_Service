@@ -1,65 +1,79 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
 import Logo from '/public/images/Logo.svg';
-import { User } from 'lucide-react';
-// import { useAuth } from '../Pages/Login/AuthContext';
+import { CarFront, Menu, X } from 'lucide-react'; // Hamburger and Close icons
+import { Link } from 'react-router-dom';
+import { gsap } from 'gsap';
 
 function NavbarUser() {
-  const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
+  const menuRef = useRef(null);
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
-
-  const handleLogout = () => {
-    logout();
-    setMenuOpen(false);
-  };
-
-  const handleProfileNavigation = () => {
-    if (user) {
-      if (user.role === 'vehical') {
-        navigate('/driver-profile');
-      } else {
-        navigate('/user-profile');
-      }
+  useEffect(() => {
+    if (menuOpen) {
+      gsap.to(menuRef.current, { x: 0, duration: 0.5, ease: 'power3.out' });
+    } else {
+      gsap.to(menuRef.current, { x: '-100%', duration: 0.5, ease: 'power3.out' });
     }
-    setMenuOpen(false);
-  };
+  }, [menuOpen]);
 
   return (
-    <div className='flex justify-between bg-white text-black items-center py-6 px-8 md:scroll-px-32 border-b-2 fixed top-0 left-0 w-full z-50'>
+    <div className="flex justify-between bg-white text-black items-center py-6 px-8 border-b-2 fixed top-0 left-0 w-full z-50">
+      {/* Logo */}
       <a href="#Home">
-        <img src={Logo} alt="logo" className='w-[9rem]' />
+        <img src={Logo} alt="logo" className="w-[9rem]" />
       </a>
-      <ul className='hidden xl:flex items-center gap-12 font-walsheim text-base'>
-        <li className='cursor-pointer p-3 hover:underline'><Link to="/">Home</Link></li>
-        <li className='cursor-pointer p-3 hover:underline'><Link to="/ride">Ride</Link></li>
-        <li className='cursor-pointer p-3 hover:underline'><Link to="/about">About Us</Link></li>
-        <li className='cursor-pointer p-3 hover:underline'>Safety</li>
+
+      {/* Desktop Navigation */}
+      <ul className="hidden xl:flex items-center gap-12 font-walsheim text-base">
+        <li className="cursor-pointer p-3 hover:underline">
+          <Link to="/">Home</Link>
+        </li>
+        <li className="cursor-pointer p-3 hover:underline">
+          <Link to="/ride">Ride</Link>
+        </li>
+        <li className="cursor-pointer p-3 hover:underline">
+          <Link to="/about">About Us</Link>
+        </li>
+        <li className="cursor-pointer p-3 hover:underline">Safety</li>
       </ul>
-      <div className='relative'>
-        {user ? (
-          <div className='flex items-center cursor-pointer' onClick={toggleMenu}>
-            <div className='flex items-center bg-gray-400 px-3 py-2 w-12 h-12 rounded-full justify-center text-white text-lg font-semibold'>
-              {user.username[0].toUpperCase()}
-            </div>
+
+      {/* Book Button */}
+      <Link to="/ride">
+        <div className="hidden xl:flex items-center bg-yellow-200 px-3 py-2 gap-5 rounded-lg font-walsheim text-base cursor-pointer">
+          <CarFront />
+          <h1>Book</h1>
+        </div>
+      </Link>
+
+      {/* Hamburger Menu for Mobile */}
+      <div className="xl:hidden cursor-pointer z-50" onClick={() => setMenuOpen(!menuOpen)}>
+        {menuOpen ? <X size={30} /> : <Menu size={30} />}
+      </div>
+
+      {/* Mobile Navigation */}
+      <div
+        ref={menuRef}
+        className="fixed top-0 left-0 bg-white h-screen w-[70vw] shadow-lg z-40 flex flex-col items-start justify-center px-10 transform -translate-x-full"
+      >
+        <ul className="flex flex-col gap-8 font-walsheim text-lg">
+          <li className="cursor-pointer" onClick={() => setMenuOpen(false)}>
+            <Link to="/">Home</Link>
+          </li>
+          <li className="cursor-pointer" onClick={() => setMenuOpen(false)}>
+            <Link to="/ride">Ride</Link>
+          </li>
+          <li className="cursor-pointer" onClick={() => setMenuOpen(false)}>
+            <Link to="/about">About Us</Link>
+          </li>
+          <li className="cursor-pointer" onClick={() => setMenuOpen(false)}>Safety</li>
+        </ul>
+
+        <Link to="/ride" onClick={() => setMenuOpen(false)}>
+          <div className="mt-10 flex items-center bg-yellow-200 px-3 py-2 gap-5 rounded-lg font-walsheim text-base cursor-pointer">
+            <CarFront />
+            <h1>Book</h1>
           </div>
-        ) : (
-          <Link to='/login'>
-            <div className='flex items-center bg-gray-400 px-3 py-2 w-12 h-12 gap-5 rounded-full cursor-pointer'>
-              <User className='text-white' size={24} />
-            </div>
-          </Link>
-        )}
-        {menuOpen && (
-          <div className='absolute right-0 mt-2 w-48 bg-white shadow-md rounded-md py-2 z-50'>
-            <button onClick={handleProfileNavigation} className='block w-full text-left px-4 py-2 text-black hover:bg-gray-200'>View My Profile</button>
-            <button onClick={handleLogout} className='block w-full text-left px-4 py-2 text-black hover:bg-gray-200'>Logout</button>
-          </div>
-        )}
+        </Link>
       </div>
     </div>
   );
