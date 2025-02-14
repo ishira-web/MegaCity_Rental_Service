@@ -19,29 +19,29 @@ const UserLogin=()=> {
     e.preventDefault(); // Prevent form from reloading the page
      
 
-    try {
-      const response = await axios.post ("http://localhost:8080/auth/login", {
-        userName : userName,
-        password : password,   
-      });
-     const {token,role} = response.data;
-     localStorage.setItem("jwtToken",token);
+  //   try {
+  //     const response = await axios.post ("http://localhost:8080/auth/login", {
+  //       userName : userName,
+  //       password : password,   
+  //     });
+  //    const {token,role} = response.data;
+  //    localStorage.setItem("jwtToken",token);
      
 
-     login(token);
+  //    login(token);
     
 
-     if(role === "ROLE_CUSTOMER") {
-      window.location.href = "/ride";
-     }else if (role === "ROLE_DRIVER"){
-      window.location.href = "/driver-profile";
-     }else  {
-        console.log("This part underdevelopment")  
-    }
+  //    if(role === "ROLE_CUSTOMER") {
+  //     window.location.href = "/ride";
+  //    }else if (role === "ROLE_DRIVER"){
+  //     window.location.href = "/driver-profile";
+  //    }else  {
+  //       console.log("This part underdevelopment")  
+  //   }
     
-  }catch (error){
-    console.error('Error Dutring Logging', error);
-  }
+  // }catch (error){
+  //   console.error('Error Dutring Logging', error);
+  // }
 } 
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-950">
