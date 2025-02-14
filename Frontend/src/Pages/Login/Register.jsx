@@ -9,6 +9,8 @@ function Register() {
     email: '',
     password: '',
     dob: '',
+    fullName: '',
+    mobileNumber: '',
     nicNo: '',
     nicFront: null,
     nicBack: null,
@@ -48,7 +50,7 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-950">
+    <div className="min-h-screen w-full flex items-center justify-center bg-blue-950">
       <Toaster position="top-center" reverseOrder={false} />
       <div className="flex w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
         {/* Left Side - Form */}
@@ -64,6 +66,28 @@ function Register() {
                     type="text"
                     name="username"
                     value={formData.username}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-md p-3 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-md p-3 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1">Mobile Number</label>
+                  <input
+                    type="tel"
+                    name="mobileNumber"
+                    value={formData.mobileNumber}
                     onChange={handleInputChange}
                     className="w-full border border-gray-300 rounded-md p-3 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     required
@@ -194,7 +218,7 @@ function Register() {
 
         {/* Right Side - Background Image */}
         <div
-          className="w-1/2 bg-cover bg-center hidden md:block"
+          className="w-[30vw] bg-cover object-cover bg-center hidden md:block"
           style={{ backgroundImage: `url(${Registerpt})` }}
         ></div>
       </div>
