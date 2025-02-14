@@ -5,29 +5,29 @@ import { User } from 'lucide-react';
 // import { useAuth } from '../Pages/Login/AuthContext';
 
 function NavbarUser() {
-  // const { user, logout } = useAuth();
-  // const [menuOpen, setMenuOpen] = useState(false);
-  // const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // const toggleMenu = () => {
-  //   setMenuOpen(!menuOpen);
-  // };
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
 
-  // const handleLogout = () => {
-  //   logout();
-  //   setMenuOpen(false);
-  // };
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+  };
 
-  // const handleProfileNavigation = () => {
-  //   if (user) {
-  //     if (user.role === 'vehical') {
-  //       navigate('/driver-profile');
-  //     } else {
-  //       navigate('/user-profile');
-  //     }
-  //   }
-  //   setMenuOpen(false);
-  // };
+  const handleProfileNavigation = () => {
+    if (user) {
+      if (user.role === 'vehical') {
+        navigate('/driver-profile');
+      } else {
+        navigate('/user-profile');
+      }
+    }
+    setMenuOpen(false);
+  };
 
   return (
     <div className='flex justify-between bg-white text-black items-center py-6 px-8 md:scroll-px-32 border-b-2 fixed top-0 left-0 w-full z-50'>
