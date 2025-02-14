@@ -34,7 +34,6 @@ function App() {
     <Route path='/booking' element ={<BookingLayout/>}/>
      <Route path= '/bill' element = {<Bill/>}/>
      <Route path='/driver-register' element = {<DriverRegister/>}/>
-     
    </Routes>
   )
 }

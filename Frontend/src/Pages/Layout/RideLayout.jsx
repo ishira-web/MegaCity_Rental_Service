@@ -1,5 +1,4 @@
 import React from 'react'
-import NavbarUser from '../NavbarUser'
 import Ride from '../Ride'
 import Footer from '../Footer'
 import { Outlet } from 'react-router-dom'
@@ -7,6 +6,7 @@ import Ride2 from '../Ride2'
 import BookingBanner from '../BookingBanner'
 import BannerServices from '../BannerServices'
 import BannerCount from '../Components/BannerCount'
+import NavbarUser from '../NavbarUser'
 
 function RideLayout() {
   return (

@@ -34,7 +34,8 @@ function Navbar() {
         <li className="cursor-pointer p-3 hover:underline">
           <Link to="/about">About Us</Link>
         </li>
-        <li className="cursor-pointer p-3 hover:underline">Safety</li>
+        <li className="cursor-pointer p-3 hover:underline">
+          <Link to="/blog"> Blog</Link></li>
       </ul>
 
       {/* Book Button */}
