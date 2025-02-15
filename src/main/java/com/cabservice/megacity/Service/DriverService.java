@@ -19,6 +19,11 @@ public class DriverService {
         return driverRepository.save(driver);
     }
 
+    //Get All Drivers
+    public List<Driver> getAllDrivers(){
+        return driverRepository.findAll();
+    }
+
     //Get Drivers By ID
     public  Driver getDriverByID(String driverID){
         return driverRepository.findById(driverID).get();

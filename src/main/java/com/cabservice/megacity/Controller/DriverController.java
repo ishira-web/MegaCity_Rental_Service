@@ -4,24 +4,26 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import com.cabservice.megacity.Model.Driver;
 import com.cabservice.megacity.Service.DriverService;
 
 @RestController
-@RequestMapping("/drivers")
 public class DriverController {
     
     @Autowired
     private DriverService service;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Creates a new driver.
@@ -30,10 +32,12 @@ public class DriverController {
      */
 
      
-    @PostMapping("/create")
+    @PostMapping("/auth/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Driver createDriver(@RequestBody Driver driver) {
-        return service.createDriver(driver);
+    public ResponseEntity< Driver> createDriver(@RequestBody Driver driver) {
+        driver.setPassword(passwordEncoder.encode(driver.getPassword()));
+        Driver saveDriver = service.createDriver(driver);
+        return ResponseEntity.ok(saveDriver);
     }
 
     /**
@@ -43,16 +47,27 @@ public class DriverController {
      */
 
 
-    @GetMapping("/{driverID}")
+    @GetMapping("/auth/{driverID}")
     public Driver getDriver(@PathVariable String driverID) {
         return service.getDriverByID(driverID);
     }
+
+
+    /** Get All Drivers **/
+    @GetMapping("/auth/getAllDriver")
+    public ResponseEntity <List<Driver>> getAllDrivers() {
+        List<Driver> drivers = service.getAllDrivers();
+        return ResponseEntity.ok(drivers);
+    }    
+
+
 
     /**
      * Deletes a driver by their ID.
      * @param driverID The ID of the driver to delete.
      * @return A message indicating whether the deletion was successful.
      */
+    
 
 
     @DeleteMapping("/{driverID}")

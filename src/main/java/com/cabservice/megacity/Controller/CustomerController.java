@@ -40,7 +40,7 @@ public class CustomerController {
      * @param id The ID of the customer to retrieve.
      * @return The customer if found, otherwise returns 404 Not Found.
      */
-    @GetMapping("/{id}")
+    @GetMapping("/auth/{id}")
     public ResponseEntity<Customer> getCustomerById(@PathVariable String id) {
         Optional<Customer> customer = customerService.findById(id);
         return customer.map(ResponseEntity::ok)
