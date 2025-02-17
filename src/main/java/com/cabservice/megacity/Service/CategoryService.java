@@ -1,5 +1,7 @@
 package com.cabservice.megacity.Service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,11 @@ public class CategoryService {
     public String deleteCategory(String catID) {
         categoryRepository.deleteById(catID);
         return catID+" deleted";
+    }
+
+     // Get all categories
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
     }
 
 }

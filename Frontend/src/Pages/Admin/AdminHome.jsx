@@ -17,10 +17,10 @@ function AdminHome() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#F5F5F5] font-simplon flex">
+    <div className="w-full min-h-screen bg-white font-simplon flex">
       {/* Left Sidebar */}
       <div className="w-[250px] min-h-screen bg-[#344955] rounded-l-[16px] flex flex-col items-center py-6 text-white shadow-lg">
-        <h1 className="text-[26px] mb-8">Admin Dashboard</h1>
+        <h1 className="text-[26px] mb-8 text-center">Admin Dashboard</h1>
         <div className="w-full flex flex-col items-center gap-12">
           <Link
             to="/admin/dashboard"

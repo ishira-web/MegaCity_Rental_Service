@@ -1,5 +1,7 @@
 package com.cabservice.megacity.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -56,5 +58,11 @@ public class CategoryController {
     @DeleteMapping("/{catID}")
     public String deleteCategory(@PathVariable String catID) {
         return catService.deleteCategory(catID);
+    }
+
+
+    @GetMapping("/auth/getAllCategories")
+    public List<Category> getAllCategories() {
+        return catService.getAllCategories();
     }
 }

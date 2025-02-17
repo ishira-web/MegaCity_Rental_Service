@@ -10,7 +10,7 @@ function Bookings() {
       driverName: 'Mike Johnson',
       status: 'Pending',
       pickupLocation: 'Colombo',
-      dropLocation: 'Kandy'
+      dropLocation: 'Kandy',
     },
     {
       id: 2,
@@ -20,10 +20,21 @@ function Bookings() {
       driverName: 'Alex Brown',
       status: 'Accepted',
       pickupLocation: 'Galle',
-      dropLocation: 'Colombo'
-    }
-    // You can add more sample bookings here
+      dropLocation: 'Colombo',
+    },
+    // Add more sample bookings here
   ]);
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter bookings based on search query
+  const filteredBookings = bookings.filter(
+    (booking) =>
+      booking.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.driverName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.pickupLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking.dropLocation.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleStatusChange = (id, newStatus) => {
     const updatedBookings = bookings.map((booking) =>
@@ -40,23 +51,35 @@ function Bookings() {
   return (
     <div className="min-h-[91vh] p-4">
       <h2 className="text-2xl font-semibold mb-4">Bookings</h2>
-      <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by Customer, Driver, Pickup, or Drop Location..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div className="overflow-x-auto shadow-md rounded-lg">
         <table className="w-full table-auto border-collapse">
           <thead>
             <tr>
-              <th className="border px-4 py-2 text-left">Booking ID</th>
-              <th className="border px-4 py-2 text-left">Customer Name</th>
-              <th className="border px-4 py-2 text-left">Date</th>
-              <th className="border px-4 py-2 text-left">Time</th>
-              <th className="border px-4 py-2 text-left">Driver Name</th>
-              <th className="border px-4 py-2 text-left">Status</th>
-              <th className="border px-4 py-2 text-left">Pickup Location</th>
-              <th className="border px-4 py-2 text-left">Drop Location</th>
-              <th className="border px-4 py-2 text-left">Actions</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Booking ID</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Customer Name</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Date</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Time</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Driver Name</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Status</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Pickup Location</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Drop Location</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {bookings.map((booking) => (
+            {filteredBookings.map((booking) => (
               <tr key={booking.id}>
                 <td className="border px-4 py-2">{booking.id}</td>
                 <td className="border px-4 py-2">{booking.customerName}</td>

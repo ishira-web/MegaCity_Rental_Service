@@ -114,7 +114,7 @@ public class DriverController {
      */
 
 
-    @GetMapping("/category/{catID}")
+    @GetMapping("/auth/category/{catID}")
     public List<Driver> getDriversByCategoryId(@PathVariable String catID) {
         System.out.println("Received request for drivers with catID: " + catID);
         return service.getDriversByCategoryId(catID);

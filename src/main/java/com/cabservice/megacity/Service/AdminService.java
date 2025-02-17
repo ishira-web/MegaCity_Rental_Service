@@ -1,6 +1,9 @@
 package com.cabservice.megacity.Service;
 import com.cabservice.megacity.Model.Admin;
 import com.cabservice.megacity.Repository.AdminRepository;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,5 +19,15 @@ public class AdminService {
     }
     public Admin getAdminById(String adminID) {
         return adminRepository.findById(adminID).get();
+    }
+
+     // Fetch all admins
+     public List<Admin> getAllAdmins() {
+        return adminRepository.findAll();
+    }
+
+     // Delete an admin by ID
+     public void deleteAdmin(String adminID) {
+        adminRepository.deleteById(adminID);
     }
 }

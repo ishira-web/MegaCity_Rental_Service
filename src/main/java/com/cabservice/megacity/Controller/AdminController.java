@@ -1,7 +1,7 @@
 package com.cabservice.megacity.Controller;
-
 import com.cabservice.megacity.Model.Admin;
 import com.cabservice.megacity.Service.AdminService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,8 @@ public class AdminController {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    
+    
 
     @PostMapping("/auth/admincreate")
     @ResponseStatus(HttpStatus.CREATED)
@@ -30,4 +31,17 @@ public class AdminController {
     public Admin getAdminId(@PathVariable String adminID) {
         return adminService.getAdminById(adminID);
     }
+
+      // Fetch all admins
+    @GetMapping("/auth/getAllAdmins")
+
+    public List<Admin> getAllAdmins() {
+        return adminService.getAllAdmins();
+    }
+
+     // Delete an admin by ID
+     @DeleteMapping("/auth/deleteAdmin/{adminID}")
+     public void deleteAdmin(@PathVariable String adminID) {
+         adminService.deleteAdmin(adminID);
+     }
 }
