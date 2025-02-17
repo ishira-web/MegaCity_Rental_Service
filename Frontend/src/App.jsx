@@ -13,6 +13,7 @@ import BookingLayout from './Pages/Layout/BookingLayout'
 import RideLayout from './Pages/Layout/RideLayout'
 import DriverProfile from './Pages/DriverDetails/DriverProfile'
 import UserProfile from './Pages/UserProfile'
+import AdminHome from './Pages/Admin/AdminHome'
 
 
 
@@ -33,6 +34,7 @@ function App() {
      <Route path='/booking-form' element={<BookingForm/>}/>
     <Route path='/booking' element ={<BookingLayout/>}/>
      <Route path= '/bill' element = {<Bill/>}/>
+     <Route path='/admin/*' element = {<AdminHome/>}/>
      <Route path='/driver-register' element = {<DriverRegister/>}/>
    </Routes>
   )

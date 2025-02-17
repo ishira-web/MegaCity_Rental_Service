@@ -22,6 +22,7 @@ public class Driver {
     private String driverEmail;
     private String userName;
     private String password;
+    private String imageUrl;
     private String driverStatues;
     private String currentLocation;
 
