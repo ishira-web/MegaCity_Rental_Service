@@ -4,36 +4,41 @@ import axios from 'axios';
 function DriversAndCategories() {
   const [drivers, setDrivers] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedDriver, setSelectedDriver] = useState(null); // State to store the selected driver for the form
-  const [isFormOpen, setIsFormOpen] = useState(false); // State to manage form visibility
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-  // Fetch all drivers and categories from the database
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const driversResponse = await axios.get('http://localhost:8080/driver/auth/getAllDrivers');
-        const categoriesResponse = await axios.get('http://localhost:8080/driver//auth/category/{catID}');
-        setDrivers(driversResponse.data);
-        setCategories(categoriesResponse.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
+    fetchDrivers();
+    fetchCategories();
   }, []);
 
-  // Helper function to get category details by catID
+  const fetchDrivers = async () => {
+    try {
+      const response = await axios.get('/auth/getAllDriver');
+      setDrivers(response.data);
+    } catch (error) {
+      console.error('Error fetching drivers:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('/auth/categories');
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
   const getCategoryDetails = (catID) => {
     return categories.find(category => category.catID === catID) || {};
   };
 
-  // Handle opening the form with driver details
   const handleOpenForm = (driver) => {
     setSelectedDriver(driver);
     setIsFormOpen(true);
   };
 
-  // Handle closing the form
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setSelectedDriver(null);
