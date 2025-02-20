@@ -1,141 +1,82 @@
 import React, { useEffect, useState } from 'react';
+import { Search, Info } from 'lucide-react'; // Import necessary icons
 import axios from 'axios';
 
-function DriversAndCategories() {
+function Driver() {
+
   const [drivers, setDrivers] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [selectedDriver, setSelectedDriver] = useState(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-
-  useEffect(() => {
+ 
+   useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/auth/getAllDriver');
+        setDrivers(response.data);
+       }catch (error){
+        console.error('Error fetching Driver details:', error);
+        toast.error('Error fetching Driver details.'); // Show err
+       } // setDrivers
+      
+    }
     fetchDrivers();
-    fetchCategories();
-  }, []);
+   } , []);
+  const [searchKeyword, setSearchKeyword] = useState('');
 
-  const fetchDrivers = async () => {
-    try {
-      const response = await axios.get('/auth/getAllDriver');
-      setDrivers(response.data);
-    } catch (error) {
-      console.error('Error fetching drivers:', error);
-    }
+  const handleSearch = (e) => {
+    const keyword = e.target.value.toLowerCase();
+    setSearchKeyword(keyword);
   };
 
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get('/auth/categories');
-      setCategories(response.data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  const getCategoryDetails = (catID) => {
-    return categories.find(category => category.catID === catID) || {};
-  };
-
-  const handleOpenForm = (driver) => {
-    setSelectedDriver(driver);
-    setIsFormOpen(true);
-  };
-
-  const handleCloseForm = () => {
-    setIsFormOpen(false);
-    setSelectedDriver(null);
-  };
+  const filteredDrivers = drivers.filter(driver =>
+    Object.values(driver).some(value => value.toString().toLowerCase().includes(searchKeyword))
+  );
 
   return (
-    <div className="min-h-[91vh] bg-white p-6">
-      <h2 className="text-2xl font-bold mb-4">Drivers and Categories List</h2>
-
-      {/* Drivers Table */}
-      <div className="overflow-x-auto mb-8">
-        <table className="w-full bg-white rounded-lg shadow-md">
-          <thead>
-            <tr className="bg-gray-700 text-white">
-              <th className="p-2">Driver ID</th>
-              <th className="p-2">Driver Name</th>
-              <th className="p-2">Phone</th>
-              <th className="p-2">Email</th>
-              <th className="p-2">Username</th>
-              <th className="p-2">Status</th>
-              <th className="p-2">Current Location</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {drivers.map((driver) => {
-              const category = getCategoryDetails(driver.catID);
-              return (
-                <tr
-                  key={driver.driverID}
-                  className="border-b hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <td className="p-2 text-center">{driver.driverID}</td>
-                  <td className="p-2 text-center">{driver.driverName}</td>
-                  <td className="p-2 text-center">{driver.driverPhone}</td>
-                  <td className="p-2 text-center">{driver.driverEmail}</td>
-                  <td className="p-2 text-center">{driver.userName}</td>
-                  <td className="p-2 text-center">{driver.driverStatues}</td>
-                  <td className="p-2 text-center">{driver.currentLocation}</td>
-                  <td className="p-2 text-center">
-                    <button
-                      className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-700"
-                      onClick={() => handleOpenForm(driver)}
-                    >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+    <div className="bg-white min-h-[91vh] p-6">
+      {/* Search Input */}
+      <div className="mb-6 flex items-center space-x-2">
+        <Search className="text-gray-500" />
+        <input
+          type="text"
+          placeholder="Search by any keyword..."
+          value={searchKeyword}
+          onChange={handleSearch}
+          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
 
-      {/* Form to display driver and category details */}
-      {isFormOpen && selectedDriver && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-2xl font-bold mb-4 text-center">Driver Details</h2>
+      {/* Driver Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 overflow-auto">
+        {filteredDrivers.length > 0 ? (
+          filteredDrivers.map((driver, index) => (
+            <div key={index} className="relative bg-gray-100 rounded-lg shadow-lg p-4">
+              {/* Status Badge */}
+              <div className={`absolute top-3 right-3 px-3 py-1 text-white text-sm rounded-full ${driver.status === "Available" ? "bg-green-500" : "bg-red-500"}`}>
+                {driver.status}
+              </div>
 
-            {/* Driver Details */}
-            <div className="mb-4">
-              <h3 className="text-xl font-semibold mb-2">Driver Information</h3>
-              <p><strong>Driver ID:</strong> {selectedDriver.driverID}</p>
-              <p><strong>Name:</strong> {selectedDriver.driverName}</p>
-              <p><strong>Phone:</strong> {selectedDriver.driverPhone}</p>
-              <p><strong>Email:</strong> {selectedDriver.driverEmail}</p>
-              <p><strong>Username:</strong> {selectedDriver.userName}</p>
-              <p><strong>Status:</strong> {selectedDriver.driverStatues}</p>
-              <p><strong>Current Location:</strong> {selectedDriver.currentLocation}</p>
+              {/* Driver Image */}
+              <div className="w-full flex justify-center mt-4">
+                <img src={driver.imageUrl} alt="Driver" className="w-32 h-32 object-cover rounded-full border-4 border-gray-300" />
+              </div>
+
+              {/* Driver Info */}
+              <div className="mt-6 text-center">
+                <h2 className="text-xl font-semibold text-gray-800">{driver.driverName}</h2>
+                <p className="text-gray-600 mt-2">{driver.driverAddress}</p>
+                <p className="text-gray-600 mt-2">Phone: {driver.driverPhone}</p>
+                <p className="text-gray-600 mt-2">Email: {driver.driverEmail}</p>
+                <p className="text-gray-600 mt-2">Current Location: {driver.driverAddress}</p>
+              </div>
             </div>
-
-            {/* Category Details */}
-            <div className="mb-4">
-              <h3 className="text-xl font-semibold mb-2">Category Information</h3>
-              {selectedDriver.catID && (
-                <>
-                  <p><strong>Type:</strong> {getCategoryDetails(selectedDriver.catID).catType}</p>
-                  <p><strong>Model:</strong> {getCategoryDetails(selectedDriver.catID).catModel}</p>
-                  <p><strong>Seats:</strong> {getCategoryDetails(selectedDriver.catID).noOfSeats}</p>
-                  <p><strong>Luggage Type:</strong> {getCategoryDetails(selectedDriver.catID).lagguageType}</p>
-                </>
-              )}
-            </div>
-
-            {/* Close Button */}
-            <button
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700 w-full"
-              onClick={handleCloseForm}
-            >
-              Close
-            </button>
+          ))
+        ) : (
+          <div className="text-center text-gray-600 mt-6">
+            No data found matching your search.
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
 
-export default DriversAndCategories;
+export default Driver;

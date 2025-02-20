@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Trash2, Plus, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
+import { toast } from 'sonner'; // Import Sonner's toast function
 
 function Admins() {
   const [admins, setAdmins] = useState([]); // State to store admin data
@@ -19,6 +20,7 @@ function Admins() {
         setAdmins(response.data); // Set the fetched admin data to state
       } catch (error) {
         console.error('Error fetching admin details:', error);
+        toast.error('Error fetching admin details.'); // Show error toast on failure
       }
     };
     fetchAdmins();
@@ -33,7 +35,7 @@ function Admins() {
   // Handle adding a new admin
   const handleAddAdmin = async () => {
     if (!newAdmin.userName || !newAdmin.password) {
-      alert('Username and Password are required!');
+      toast.error('Username and Password are required!'); // Show error toast
       return;
     }
     try {
@@ -41,8 +43,10 @@ function Admins() {
       setAdmins([...admins, response.data]); // Add the new admin to the list
       setIsModalOpen(false); // Close the modal
       setNewAdmin({ userName: '', password: '' }); // Reset the form
+      toast.success('Admin added successfully!'); // Show success toast
     } catch (error) {
       console.error('Error adding admin:', error);
+      toast.error('Error adding admin.'); // Show error toast
     }
   };
 
@@ -53,8 +57,10 @@ function Admins() {
       try {
         await axios.delete(`http://localhost:8080/auth/deleteAdmin/${adminID}`); // Fixed URL
         setAdmins(admins.filter((admin) => admin.adminID !== adminID)); // Remove the admin from the list
+        toast.success('Admin deleted successfully!'); // Show success toast
       } catch (error) {
         console.error('Error deleting admin:', error);
+        toast.error('Error deleting admin.'); // Show error toast
       }
     }
   };

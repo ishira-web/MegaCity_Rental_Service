@@ -28,6 +28,7 @@
     "react-select": "^5.10.0",
     "react-toastify": "^11.0.3",
     "recharts": "^2.15.1",
+    "sonner": "^2.0.0",
     "stripe": "^17.5.0",
     "swiper": "^11.2.1"
   },

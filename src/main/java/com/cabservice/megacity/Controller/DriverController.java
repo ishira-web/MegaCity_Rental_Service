@@ -79,11 +79,10 @@ public class DriverController {
      */
 
 
-    @GetMapping("/auth/{driverID}")
-    public Driver getDriver(@PathVariable String driverID) {
-        return service.getDriverByID(driverID);
-    }
-
+     @GetMapping("/auth/{driverID}")
+     public Driver getDriver(@PathVariable String driverID) {
+         return service.getDriverByID(driverID);
+     }
 
     /** Get All Drivers **/
     @GetMapping("/auth/getAllDriver")
