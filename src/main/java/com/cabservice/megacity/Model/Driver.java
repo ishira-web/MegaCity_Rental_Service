@@ -1,4 +1,5 @@
 package com.cabservice.megacity.Model;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
@@ -6,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 
 @Document(collection = "Driver")
 @Getter
@@ -13,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Driver {
-    
+
     @Id
     private String driverID;
     private String driverName;
@@ -22,13 +24,13 @@ public class Driver {
     private String driverEmail;
     private String userName;
     private String password;
-    private String imageUrl;
+    private String imageUrl; // Driver photo URL
     private String driverStatues;
     private String currentLocation;
-
-    //Get Category ID
     private String catID;
-
-
-    
+    private String catType;
+    private String catModel;
+    private String noOfSeats;
+    private String lagguageType;
+    private List<String> carImageUrls; // List of car photo URLs
 }

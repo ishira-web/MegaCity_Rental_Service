@@ -43,6 +43,11 @@ public class DriverService {
         return driver;
     }
 
+
+    public List<Driver> getDriversByStatus(String status) {
+        return driverRepository.findByDriverStatues(status);
+    }
+
     // Update Driver
     public Driver updateDriver(String driverID, Driver updatedDriver) {
         Driver existingDriver = driverRepository.findById(driverID)
@@ -57,6 +62,7 @@ public class DriverService {
         existingDriver.setPassword(updatedDriver.getPassword());
         existingDriver.setDriverStatues(updatedDriver.getDriverStatues());
         existingDriver.setCurrentLocation(updatedDriver.getCurrentLocation());
+        
 
         return driverRepository.save(existingDriver);
     }

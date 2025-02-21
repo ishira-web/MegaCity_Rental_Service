@@ -1,47 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Car from '/public/images/CarToyota.png';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Ride() {
   const navigate = useNavigate();
-  const [vehicles, setVehicles] = useState([
-    {
-      vehicleId: 1,
-      vehicleModel: 'Toyota Prius',
-      vehicleType: 'Sedan',
-      availableSeats: 4,
-      availableLaggauge: 2,
-      imageUrl: 'https://via.placeholder.com/150',
-      isAvailable: true,
-    },
-    {
-      vehicleId: 2,
-      vehicleModel: 'Honda Civic',
-      vehicleType: 'Sedan',
-      availableSeats: 4,
-      availableLaggauge: 2,
-      imageUrl: 'https://via.placeholder.com/150',
-      isAvailable: false,
-    },
-    {
-      vehicleId: 3,
-      vehicleModel: 'Ford Explorer',
-      vehicleType: 'SUV',
-      availableSeats: 6,
-      availableLaggauge: 4,
-      imageUrl: 'https://via.placeholder.com/150',
-      isAvailable: true,
-    },
-    {
-      vehicleId: 4,
-      vehicleModel: 'Tesla Model S',
-      vehicleType: 'Electric',
-      availableSeats: 5,
-      availableLaggauge: 3,
-      imageUrl: 'https://via.placeholder.com/150',
-      isAvailable: false,
-    }
-  ]);
+  const [vehicles, setVehicles] = useState([]);
+
+  // Fetch driver and vehicle data from the backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/auth/availableDrivers');
+        const drivers = response.data;
+
+        // Map drivers to vehicles (assuming each driver has a vehicle)
+        const vehicleData = drivers.map((driver) => ({
+          vehicleId: driver.driverID,
+          carImage: driver.carImageUrls?.[0] || '/default-car.jpg', // Use the first car image
+          carType: driver.catType,
+          carModel: driver.catModel,
+          seats: driver.noOfSeats,
+          luggageType: driver.lagguageType,
+          isAvailable: driver.driverStatues === 'Available',
+        }));
+
+        setVehicles(vehicleData);
+      } catch (error) {
+        console.error('Error fetching driver and vehicle data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleVehicle = (vehicle) => {
     if (vehicle.isAvailable) {
@@ -71,17 +61,20 @@ function Ride() {
                 {vehicle.isAvailable ? 'Available' : 'Unavailable'}
               </div>
 
+              {/* Car Image */}
               <img
-                src={vehicle.imageUrl || '/default-car.jpg'}
-                alt={vehicle.vehicleModel}
+                src={vehicle.carImage}
+                alt={vehicle.carModel}
                 className="w-full h-40 object-cover rounded-lg"
               />
+
+              {/* Car Details */}
               <div className="flex flex-col items-center gap-2 mt-3">
-                <h2 className="text-xl font-semibold">{vehicle.vehicleModel}</h2>
-                <p className="text-sm text-gray-600">Type: {vehicle.vehicleType}</p>
-                <p className="text-sm text-gray-600">Seats: {vehicle.availableSeats}</p>
-                <p className="text-sm text-gray-600">Luggage: {vehicle.availableLaggauge}</p>
-                
+                <h2 className="text-xl font-semibold">{vehicle.carModel}</h2>
+                <p className="text-sm text-gray-600">Type: {vehicle.carType}</p>
+                <p className="text-sm text-gray-600">Seats: {vehicle.seats}</p>
+                <p className="text-sm text-gray-600">Luggage: {vehicle.luggageType}</p>
+
                 {/* Book Now Button */}
                 <button
                   onClick={() => handleVehicle(vehicle)}
