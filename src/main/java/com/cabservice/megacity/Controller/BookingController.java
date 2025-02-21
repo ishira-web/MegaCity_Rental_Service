@@ -19,7 +19,6 @@ import com.cabservice.megacity.Model.Booking;
 import com.cabservice.megacity.Service.BookingService;
 
 @RestController
-@RequestMapping("/bookings")
 public class BookingController {
     
     @Autowired
