@@ -8,7 +8,6 @@ import com.cabservice.megacity.Model.Category;
 import com.cabservice.megacity.Service.CategoryService;
 
 @RestController
-@RequestMapping("/categories")
 public class CategoryController {
     
     @Autowired
@@ -35,7 +34,7 @@ public class CategoryController {
         return catService.getAllCategories();
     }
 
-    @GetMapping("/catModels/{catType}")
+    @GetMapping("auth/catModels/{catType}")
     public List<Category> getCatModelsByCatType(@PathVariable String catType) {
         return catService.getCatModelsByCatType(catType);
     }
