@@ -14,7 +14,7 @@ function DriverProfile() {
   useEffect(() => {
     const fetchDriverDetails = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('jwtToken');
         if (!token) {
           navigate('/login'); // Redirect to login page if no token is found
           return;
@@ -62,16 +62,15 @@ function DriverProfile() {
           {['bookings', 'reviews', 'profile'].map((tab) => (
             <div
               key={tab}
-              className={`cursor-pointer px-4 py-2 text-gray-500 relative ${
-                activeTab === tab ? 'text-blue-500' : ''
-              }`}
+              className={`cursor-pointer px-4 py-2 text-gray-500 relative ${activeTab === tab ? 'text-blue-500' : ''
+                }`}
               onClick={() => setActiveTab(tab)}
             >
               {tab === 'bookings'
                 ? 'View Bookings'
                 : tab === 'reviews'
-                ? 'View Reviews'
-                : 'View Driver Profile'}
+                  ? 'View Reviews'
+                  : 'View Driver Profile'}
               {activeTab === tab && (
                 <motion.div
                   layoutId="underline"

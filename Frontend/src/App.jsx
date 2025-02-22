@@ -32,7 +32,7 @@ function App() {
      <Route path='/user-profile' element = {<UserProfile/>}/>
      <Route path='/sign-up' element ={<Register/>}/>
      <Route path='/blog' element = {<BlogLayout/>}/>
-     <Route path='/driver-profile/:driverId' element = {<PrivateRoute><DriverProfile/></PrivateRoute>}/>
+     <Route path='/driver-profile/:driverId' element = {<DriverProfile/>}/>
      <Route path='/booking-form/:id' element={<PrivateRoute><BookingForm/></PrivateRoute>}/>
     <Route path='/booking' element ={<BookingLayout/>}/>
      <Route path= '/bill' element = {<Bill/>}/>
