@@ -97,7 +97,7 @@ function AdminHome() {
             <Route path="/customers" element={<Customer/>} />
             <Route path="/driver" element={<Driver />} />
             <Route path="/admins" element={<Admins/>} />
-            <Route path="/*" element={<h1>Page Not Found</h1>} />
+            <Route path="/*" element={<Dashboard/>} />
           </Routes>
         </div>
       </div>

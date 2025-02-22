@@ -14,6 +14,8 @@ import DriverProfile from './Pages/DriverDetails/DriverProfile'
 import UserProfile from './Pages/UserProfile'
 import AdminHome from './Pages/Admin/AdminHome'
 import DriverRegister from './Pages/DriverRegister'
+import { AuthProvider } from './Pages/Login/AuthContext'
+import PrivateRoute from './Pages/Login/PrivateRoute'
 
 
 
@@ -21,6 +23,7 @@ import DriverRegister from './Pages/DriverRegister'
 
 function App() {
   return (
+    <AuthProvider>
    <Routes>
      <Route path='/' element ={<Layout />} />
      <Route path='/ride' element = {<RideLayout/>}/>
@@ -29,14 +32,14 @@ function App() {
      <Route path='/user-profile' element = {<UserProfile/>}/>
      <Route path='/sign-up' element ={<Register/>}/>
      <Route path='/blog' element = {<BlogLayout/>}/>
-     <Route path='/booking-ride' element={<VehicalLayout/>}/>
-     <Route path='/driver-profile' element = {<DriverProfile/>}/>
-     <Route path='/booking-form' element={<BookingForm/>}/>
+     <Route path='/driver-profile/:driverId' element = {<PrivateRoute><DriverProfile/></PrivateRoute>}/>
+     <Route path='/booking-form/:id' element={<PrivateRoute><BookingForm/></PrivateRoute>}/>
     <Route path='/booking' element ={<BookingLayout/>}/>
      <Route path= '/bill' element = {<Bill/>}/>
      <Route path='/admin/*' element = {<AdminHome/>}/>
      <Route path='/driver-register' element = {<DriverRegister/>}/>
    </Routes>
+   </AuthProvider>
   )
 }
 

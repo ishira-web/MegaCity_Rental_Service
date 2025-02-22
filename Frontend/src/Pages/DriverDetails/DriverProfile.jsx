@@ -1,49 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function DriverProfile() {
+  const navigate = useNavigate();
+  const { driverID } = useParams();
   const [activeTab, setActiveTab] = useState('bookings');
   const [driverDetails, setDriverDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch driver data from the backend
   useEffect(() => {
-    const fetchDriverData = async () => {
+    const fetchDriverDetails = async () => {
       try {
-        const driverID = '123'; // Replace with the actual driver ID (e.g., from props or context)
-        const token = localStorage.getItem('authToken'); // Get the token from localStorage
-
+        const token = localStorage.getItem('token');
         if (!token) {
-          // Redirect to login if no token is found
-          window.location.href = '/login';
+          navigate('/login'); // Redirect to login page if no token is found
           return;
         }
 
         const response = await axios.get(`http://localhost:8080/auth/driver/${driverID}`, {
           headers: {
-            Authorization: `Bearer ${token}`, // Include the token in the request headers
+            Authorization: `Bearer ${token}`,
           },
         });
-
         setDriverDetails(response.data);
-        setLoading(false);
       } catch (error) {
-        console.error('Error fetching driver data:', error);
-        if (error.response && error.response.status === 401) {
-          // Token is invalid or expired, redirect to login
-          localStorage.removeItem('authToken'); // Clear the invalid token
-          window.location.href = '/login';
+        if (error.response) {
+          if (error.response.status === 401) {
+            setError('Unauthorized: Please log in to view driver details.');
+          } else if (error.response.status === 404) {
+            setError('Driver not found.');
+          } else {
+            setError('Failed to fetch driver details.');
+          }
         } else {
-          setError('Failed to fetch driver data. Please try again.');
+          setError('Network error: Please check your connection.');
         }
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchDriverData();
-  }, []);
+    fetchDriverDetails();
+  }, [driverID, navigate]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -90,51 +91,7 @@ function DriverProfile() {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
         >
-          {activeTab === 'bookings' ? (
-            <div className="max-w-sm mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="p-6 gap-2">
-                <h3 className="text-2xl font-semibold text-gray-800 mb-3">Booking ID: #12345</h3>
-                <h1 className="text-gray-600 mb-2">
-                  Customer Name<span className="font-medium text-gray-800">Araliya Mala</span>
-                </h1>
-                <h1 className="text-gray-600 mb-2">
-                  Customer Mobile Number<span className="font-medium text-gray-800">0743631212</span>
-                </h1>
-                <p className="text-gray-600 mb-2">
-                  Pickup Location: <span className="font-medium text-gray-800">Colombo, Sri Lanka</span>
-                </p>
-                <p className="text-gray-600 mb-2">
-                  Drop-off Location: <span className="font-medium text-gray-800">Kandy, Sri Lanka</span>
-                </p>
-                <p className="text-gray-600 mb-2">
-                  Date: <span className="font-medium text-gray-800">February 5, 2025</span>
-                </p>
-                <p className="text-gray-600 mb-4">
-                  Time: <span className="font-medium text-gray-800">10:30 AM</span>
-                </p>
-
-                <div className="flex justify-between space-x-4">
-                  <button
-                    className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition ease-in-out duration-300 transform hover:scale-105"
-                    onClick={() => handleAccept(12345)}
-                  >
-                    Accept
-                  </button>
-                  <button
-                    className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition ease-in-out duration-300 transform hover:scale-105"
-                    onClick={() => handleDecline(12345)}
-                  >
-                    Decline
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : activeTab === 'reviews' ? (
-            <div>
-              <h2 className="text-lg font-semibold">Driver Reviews</h2>
-              <p>List of reviews will be displayed here.</p>
-            </div>
-          ) : (
+          {activeTab === 'profile' && driverDetails ? (
             <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
               {/* Driver Profile Header */}
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
@@ -169,41 +126,13 @@ function DriverProfile() {
                   </div>
                   <div>
                     <p className="text-gray-600">Status:</p>
-                    <p className="font-medium text-gray-800">{driverDetails.driverStatues}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Car Details */}
-              <div className="p-6 bg-gray-50">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">Car Information</h2>
-                <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-                  <img
-                    src={driverDetails.carImageUrls?.[0] || '/default-car.jpg'}
-                    alt="Car"
-                    className="w-48 h-32 object-cover rounded-lg"
-                  />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-600">Car Model:</p>
-                      <p className="font-medium text-gray-800">{driverDetails.catModel}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Car Type:</p>
-                      <p className="font-medium text-gray-800">{driverDetails.catType}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Seats:</p>
-                      <p className="font-medium text-gray-800">{driverDetails.noOfSeats}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Luggage Type:</p>
-                      <p className="font-medium text-gray-800">{driverDetails.lagguageType}</p>
-                    </div>
+                    <p className="font-medium text-gray-800">{driverDetails.driverStatus}</p>
                   </div>
                 </div>
               </div>
             </div>
+          ) : (
+            <p className="text-gray-500 text-center">Select a tab to view details</p>
           )}
         </motion.div>
       </div>

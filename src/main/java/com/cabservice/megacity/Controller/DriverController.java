@@ -3,7 +3,10 @@ package com.cabservice.megacity.Controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -101,15 +104,26 @@ public Driver createDriver(
     return service.createDriver(driver);
 }
 
-    /**
-     * Retrieves a driver by their ID.
-     * @param driverID The ID of the driver to retrieve.
-     * @return The driver details.
-     */
-    @GetMapping("/auth/{driverID}")
-    public Driver getDriver(@PathVariable String driverID) {
-        return service.getDriverByID(driverID);
+   
+     
+     /**
+ * Retrieves a driver by their ID.
+ * @param driverID The ID of the driver to retrieve.
+ * @return The driver information wrapped in a ResponseEntity.
+ */
+   @GetMapping("/auth/driver/{driverID}")
+    public ResponseEntity<Driver> getDriverById(@PathVariable String driverID) {
+    Driver driver = service.getDriverByID(driverID);
+    if (driver != null) {
+        return ResponseEntity.ok(driver);
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
+}
+
+
+
+
 
     /**
      * Retrieves all drivers.

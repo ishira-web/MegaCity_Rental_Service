@@ -43,7 +43,8 @@ public class DriverService {
         return driver;
     }
 
-
+    
+    // Get Drivers By Status
     public List<Driver> getDriversByStatus(String status) {
         return driverRepository.findByDriverStatues(status);
     }
