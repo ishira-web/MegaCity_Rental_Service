@@ -1,10 +1,8 @@
 import React from 'react'
 import Layout from './Pages/Layout'
 import { Route, Routes } from 'react-router-dom'
-import UserLogin from './Pages/Login/UserLogin'
 import Register from './Pages/Login/Register'
 import BlogLayout from './Pages/Layout/BlogLayout'
-import VehicalLayout from './Pages/Layout/VehicalLayout'
 import BookingForm from './Pages/BookingForm'
 import Bill from './Pages/Bill'
 import AboutLayout from './Pages/Layout/AboutLayout'
@@ -16,6 +14,7 @@ import AdminHome from './Pages/Admin/AdminHome'
 import DriverRegister from './Pages/DriverRegister'
 import { AuthProvider } from './Pages/Login/AuthContext'
 import PrivateRoute from './Pages/Login/PrivateRoute'
+import LoginPage from './Pages/Login/LoginPage'
 
 
 
@@ -28,11 +27,11 @@ function App() {
      <Route path='/' element ={<Layout />} />
      <Route path='/ride' element = {<RideLayout/>}/>
      <Route path='/about' element ={<AboutLayout/>}/>
-     <Route path='/login' element = {<UserLogin/>}/>
+     <Route path='/login' element = {<LoginPage/>}/>
      <Route path='/user-profile' element = {<UserProfile/>}/>
      <Route path='/sign-up' element ={<Register/>}/>
      <Route path='/blog' element = {<BlogLayout/>}/>
-     <Route path='/driver-profile/:driverId' element = {<DriverProfile/>}/>
+     <Route path='/driver-profile' element = {<DriverProfile/>}/>
      <Route path='/booking-form/:id' element={<PrivateRoute><BookingForm/></PrivateRoute>}/>
     <Route path='/booking' element ={<BookingLayout/>}/>
      <Route path= '/bill' element = {<Bill/>}/>
