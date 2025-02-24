@@ -18,8 +18,11 @@ public class Customer {
     private String name;
     private String email;
     private String phone;
-    private String address;
+    private String dob;
     private String userName;
     private String password;
     private String customerProfile; 
+    private String nicNumber;
+    private String nicFront;
+    private String nicBack;
 }

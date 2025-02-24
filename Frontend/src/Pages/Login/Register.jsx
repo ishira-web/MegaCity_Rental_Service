@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import Registerpt from '/public/images/pts.png';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import Registerpt from '/public/images/pts.png'; // Ensure this path is correct
+import axios from 'axios';
 
 function Register() {
+  const navigate = useNavigate(); // Initialize the navigate function
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     username: '',
@@ -35,18 +38,65 @@ function Register() {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Data:', formData);
 
-    // Show success toast
-    toast.success('Registration Successful! 🎉', {
-      style: {
-        borderRadius: '25px',
-        backgroundColor: 'black',
-        color: 'white',
-      },
-    });
+    const data = new FormData();
+    data.append('userName', formData.username);
+    data.append('email', formData.email);
+    data.append('password', formData.password);
+    data.append('dob', formData.dob);
+    data.append('name', formData.fullName);
+    data.append('phone', formData.mobileNumber);
+    data.append('nicNumber', formData.nicNo);
+    data.append('nicFront', formData.nicFront);
+    data.append('nicBack', formData.nicBack);
+    data.append('customerProfile', formData.profilePicture);
+
+    try {
+      const response = await axios.post('http://localhost:8080/auth/createCustomer', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.status === 201) {
+        toast.success('Registration Successful! 🎉', {
+          style: {
+            borderRadius: '25px',
+            backgroundColor: 'black',
+            color: 'white',
+          },
+        });
+
+        // Reset form after successful registration
+        setFormData({
+          username: '',
+          email: '',
+          password: '',
+          dob: '',
+          fullName: '',
+          mobileNumber: '',
+          nicNo: '',
+          nicFront: null,
+          nicBack: null,
+          profilePicture: null,
+        });
+        setCurrentStep(1); // Reset to step 1
+
+        // Navigate to the "/ride" page
+        navigate('/ride');
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      toast.error('Registration Failed! 😢', {
+        style: {
+          borderRadius: '25px',
+          backgroundColor: 'black',
+          color: 'white',
+        },
+      });
+    }
   };
 
   return (
@@ -57,6 +107,7 @@ function Register() {
         <div className="w-1/2 p-8">
           <h2 className="text-3xl font-bold text-blue-600 text-center mb-6">Register</h2>
           <form onSubmit={handleSubmit}>
+            {/* Step 1: Basic Details */}
             {currentStep === 1 && (
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-blue-500">Step 1: Basic Details</h3>
@@ -129,6 +180,7 @@ function Register() {
               </div>
             )}
 
+            {/* Step 2: NIC Details */}
             {currentStep === 2 && (
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-blue-500">Step 2: NIC Details</h3>
@@ -168,6 +220,7 @@ function Register() {
               </div>
             )}
 
+            {/* Step 3: Profile Picture */}
             {currentStep === 3 && (
               <div>
                 <h3 className="text-lg font-semibold mb-4 text-blue-500">Step 3: Profile Picture</h3>
@@ -185,6 +238,7 @@ function Register() {
               </div>
             )}
 
+            {/* Navigation Buttons */}
             <div className="flex justify-between mt-6">
               {currentStep > 1 && (
                 <button

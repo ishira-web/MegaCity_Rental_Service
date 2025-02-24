@@ -3,6 +3,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./AuthContext";
+import { Link } from "react-router-dom";
 
 
 const LoginPage = () => {
@@ -135,12 +136,9 @@ const LoginPage = () => {
         {/* Register Link */}
         <p className="mt-6 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-          <a
-            href="/signup"
-            className="text-blue-500 hover:underline"
-          >
+         <Link to="/signup"> <h1 className="text-blue-500 hover:underline">
             Sign up
-          </a>
+          </h1></Link>
         </p>
         <ToastContainer />
       </div>
