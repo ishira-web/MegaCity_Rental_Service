@@ -7,7 +7,9 @@ function DriverProfile() {
   const navigate = useNavigate();
   const { driverID } = useParams();
   const [activeTab, setActiveTab] = useState('bookings');
+  const [activeBookingTab, setActiveBookingTab] = useState('pending'); // New state for booking sub-tabs
   const [driverDetails, setDriverDetails] = useState(null);
+  const [bookings, setBookings] = useState({ pending: [], confirmed: [], declined: [] }); // State for bookings
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -19,7 +21,7 @@ function DriverProfile() {
         const role = localStorage.getItem('role');
 
         if (role !== 'ROLE_DRIVER') {
-          navigate('/unauthorize'); // Redirect to login page if no token is found
+          navigate('/unauthorize'); // Redirect to unauthorized page if not a driver
           return;
         }
 
@@ -49,6 +51,29 @@ function DriverProfile() {
     fetchDriverDetails();
   }, [driverID, navigate]);
 
+  // Fetch bookings when the bookings tab is active
+  useEffect(() => {
+    const fetchBookings = async () => {
+      if (activeTab === 'bookings') {
+        try {
+          const token = localStorage.getItem('jwtToken');
+          const userId = localStorage.getItem('userId');
+
+          const response = await axios.get(`http://localhost:8080/auth/driver/${userId}/bookings`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setBookings(response.data); // Assuming response.data contains the bookings categorized
+        } catch (error) {
+          console.error('Failed to fetch bookings:', error);
+        }
+      }
+    };
+
+    fetchBookings();
+  }, [activeTab]);
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -67,7 +92,12 @@ function DriverProfile() {
               key={tab}
               className={`cursor-pointer px-4 py-2 text-gray-500 relative ${activeTab === tab ? 'text-blue-500' : ''
                 }`}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => {
+                setActiveTab(tab);
+                if (tab === 'bookings') {
+                  setActiveBookingTab('pending'); // Reset to pending when switching to bookings
+                }
+              }}
             >
               {tab === 'bookings'
                 ? 'View Bookings'
@@ -93,8 +123,73 @@ function DriverProfile() {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
         >
+          {activeTab === 'bookings' && (
+            <div>
+              {/* Booking Sub-tabs */}
+              <div className="flex space-x-4 border-b pb-2">
+                {['pending', 'confirmed', 'declined'].map((bookingTab) => (
+                  <div
+                    key={bookingTab}
+                    className={`cursor-pointer px-4 py-2 text-gray-500 relative ${activeBookingTab === bookingTab ? 'text-blue-500' : ''
+                      }`}
+                    onClick={() => setActiveBookingTab(bookingTab)}
+                  >
+                    {bookingTab.charAt(0).toUpperCase() + bookingTab.slice(1)} Bookings
+                    {activeBookingTab === bookingTab && (
+                      <motion.div
+                        layoutId="underline"
+                        className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Display Bookings based on activeBookingTab */}
+              <div className="p-4">
+                {activeBookingTab === 'pending' && bookings.pending.length > 0 ? (
+                  <div>
+                    <h2 className="text-xl font-semibold">Pending Bookings</h2>
+                    <ul>
+                      {bookings.pending.map((booking) => (
+                        <li key={booking.id} className="border-b py-2">
+                          <p>{booking.details}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : activeBookingTab === 'confirmed' && bookings.confirmed.length > 0 ? (
+                  <div>
+                    <h2 className="text-xl font-semibold">Confirmed Bookings</h2>
+                    <ul>
+                      {bookings.confirmed.map((booking) => (
+                        <li key={booking.id} className="border-b py-2">
+                          <p>{booking.details}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : activeBookingTab === 'declined' && bookings.declined.length > 0 ? (
+                  <div>
+                    <h2 className="text-xl font-semibold">Declined Bookings</h2>
+                    <ul>
+                      {bookings.declined.map((booking) => (
+                        <li key={booking.id} className="border-b py-2">
+                          <p>{booking.details}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-center">No bookings available.</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {activeTab === 'profile' && driverDetails ? (
-            <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className ="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
               {/* Driver Profile Header */}
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
                 <div className="flex items-center space-x-4">
@@ -128,7 +223,7 @@ function DriverProfile() {
                   </div>
                   <div>
                     <p className="text-gray-600">Status:</p>
-                    <p className="font-medium text-gray-800">{driverDetails.driverStatus}</p>
+                    <p className="font-medium text-gray-800">{driverDetails.driverStatues}</p>
                   </div>
                 </div>
               </div>
