@@ -15,12 +15,15 @@ function DriverProfile() {
     const fetchDriverDetails = async () => {
       try {
         const token = localStorage.getItem('jwtToken');
-        if (!token) {
-          navigate('/login'); // Redirect to login page if no token is found
+        const userId = localStorage.getItem('userId');
+        const role = localStorage.getItem('role');
+
+        if (role !== 'ROLE_DRIVER') {
+          navigate('/unauthorize'); // Redirect to login page if no token is found
           return;
         }
 
-        const response = await axios.get(`http://localhost:8080/auth/driver/${driverID}`, {
+        const response = await axios.get(`http://localhost:8080/auth/driver/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

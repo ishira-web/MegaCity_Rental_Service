@@ -25,7 +25,9 @@ const LoginPage = () => {
       
       // Save the token to localStorage or sessionStorage
       localStorage.setItem("jwtToken", token);
+      localStorage.setItem("role", role);
       localStorage.setItem("userId", userId);
+
 
       login(token);
       toast.success("Login successful!", { position: "top-center" });

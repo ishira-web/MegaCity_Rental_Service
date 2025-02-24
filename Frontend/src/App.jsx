@@ -15,6 +15,7 @@ import DriverRegister from './Pages/DriverRegister'
 import { AuthProvider } from './Pages/Login/AuthContext'
 import PrivateRoute from './Pages/Login/PrivateRoute'
 import LoginPage from './Pages/Login/LoginPage'
+import Unauthorized from './Pages/Components/Unauthorized'
 
 
 
@@ -37,6 +38,7 @@ function App() {
      <Route path= '/bill' element = {<Bill/>}/>
      <Route path='/admin/*' element = {<AdminHome/>}/>
      <Route path='/driver-register' element = {<DriverRegister/>}/>
+     <Route path='/unauthorize' element ={<Unauthorized/>}/>
    </Routes>
    </AuthProvider>
   )

@@ -84,6 +84,7 @@ function Ride() {
                       ? 'bg-yellow-400 text-black hover:bg-yellow-500'
                       : 'bg-gray-400 text-gray-700 cursor-not-allowed'
                   }`}
+                  title={!vehicle.isAvailable ? "This vehicle is currently unavailable" : ""}
                 >
                   Book Now
                 </button>
