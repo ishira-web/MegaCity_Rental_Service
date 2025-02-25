@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import gsap from "gsap";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import sideAnime from "/public/images/fogetpassword.lottie"; // Ensure this is a .lottie file
 
 const PasswordReset = () => {
     const [email, setEmail] = useState("");
@@ -14,7 +16,7 @@ const PasswordReset = () => {
     const containerRef = useRef(null);
     const loaderRef = useRef(null);
 
-    // Animate form transition
+    // GSAP Animation
     useEffect(() => {
         gsap.fromTo(
             containerRef.current,
@@ -23,17 +25,17 @@ const PasswordReset = () => {
         );
     }, [step]);
 
-    // Show loading animation
+    // Show/Hide Loader
     const showLoader = () => {
         setLoading(true);
         gsap.to(loaderRef.current, { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" });
     };
 
-    // Hide loading animation
     const hideLoader = () => {
         gsap.to(loaderRef.current, { scale: 0, opacity: 0, duration: 0.3, ease: "power2.in", onComplete: () => setLoading(false) });
     };
 
+    // API Calls
     const handleSendOtp = async () => {
         showLoader();
         try {
@@ -78,7 +80,7 @@ const PasswordReset = () => {
     };
 
     return (
-        <div className="flex flex-col font-walsheim items-center justify-center min-h-screen bg-yellow-600 p-6 relative">
+        <div className="flex flex-col font-walsheim md:flex-row items-center justify-center min-h-screen bg-gradient-to-r from-yellow-500 to-orange-600 p-6 relative">
             {/* Loader */}
             {loading && (
                 <div ref={loaderRef} className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-60">
@@ -86,18 +88,25 @@ const PasswordReset = () => {
                 </div>
             )}
 
-            <div ref={containerRef} className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg">
+            {/* Left Side: Lottie Animation */}
+            <div className="hidden md:block w-1/2">
+                <DotLottieReact src={sideAnime} autoplay loop className="max-w-sm mx-auto" />
+            </div>
+
+            {/* Right Side: Form */}
+            <div ref={containerRef} className="w-full md:w-1/2 max-w-md bg-white p-8 rounded-2xl shadow-lg">
                 {step === 1 && (
                     <>
-                        <h2 className="text-xl font-bold text-gray-800 mb-6 text-center">Forgot Password?</h2>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Forgot Password?</h2>
+                        <h1 className="text-sm font-walsheim text-gray-400 mb-6 text-center ">Enter your email and we'll send you a one-time password (OTP) to reset your password.</h1>
                         <input
                             type="email"
-                            className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400"
+                            className="border border-gray-300 p-3 w-full rounded-lg focus:ring-1  focus:ring-blue-400"
                             placeholder="Enter your email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
-                        <button className="mt-4 w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600  transition"
+                        <button className="mt-4 w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition"
                             onClick={handleSendOtp}>
                             Send OTP
                         </button>
@@ -106,7 +115,7 @@ const PasswordReset = () => {
 
                 {step === 2 && (
                     <>
-                        <h2 className="text-xl font-bold text-gray-800 mb-6 text-center">Enter OTP</h2>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Enter OTP</h2>
                         <input
                             type="text"
                             className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-green-400"
@@ -123,7 +132,7 @@ const PasswordReset = () => {
 
                 {step === 3 && (
                     <>
-                        <h2 className="text-xl font-bold text-gray-800 mb-6 text-center">Create New Password</h2>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Create New Password</h2>
                         <input
                             type="password"
                             className="border border-gray-300 p-3 w-full rounded-lg focus:ring-2 focus:ring-purple-400"

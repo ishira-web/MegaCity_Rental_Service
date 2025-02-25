@@ -18,7 +18,7 @@ import LoginPage from './Pages/Login/LoginPage'
 import Unauthorized from './Pages/Components/Unauthorized'
 import Signup from './Pages/Login/Register'
 import PasswordReset from './Pages/Login/PasswordReset'
-
+import { Toaster } from "react-hot-toast";
 
 
 
@@ -28,6 +28,7 @@ function App() {
   return (
     <AuthProvider>
    <Routes>
+     <Toaster position="top-center" reverseOrder={false} />
      <Route path='/' element ={<Layout />} />
      <Route path='/ride' element = {<RideLayout/>}/>
      <Route path='/about' element ={<AboutLayout/>}/>
