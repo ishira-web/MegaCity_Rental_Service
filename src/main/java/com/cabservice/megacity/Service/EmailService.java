@@ -1,6 +1,7 @@
 package com.cabservice.megacity.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 import java.io.File;
+import java.util.Random;
 
 @Service
 public class EmailService {
@@ -61,6 +63,18 @@ public class EmailService {
             helper.addInline("logoImage", logoFile);
         }
 
+        mailSender.send(message);
+    }
+
+      public String generateOTP() {
+        return String.valueOf(100000 + new Random().nextInt(900000)); // 6-digit OTP
+    }
+
+    public void sendEmail(String to, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(body);
         mailSender.send(message);
     }
 }

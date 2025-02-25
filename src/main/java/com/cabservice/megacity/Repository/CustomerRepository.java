@@ -9,6 +9,7 @@ import com.cabservice.megacity.Model.Customer;
 public interface CustomerRepository extends MongoRepository<Customer, String> {
 
     Optional<Customer> findByUserName(String userName);
+    Optional<Customer>findByEmail(String email);
 
 
 }

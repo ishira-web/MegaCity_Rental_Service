@@ -17,6 +17,8 @@ import PrivateRoute from './Pages/Login/PrivateRoute'
 import LoginPage from './Pages/Login/LoginPage'
 import Unauthorized from './Pages/Components/Unauthorized'
 import Signup from './Pages/Login/Register'
+import PasswordReset from './Pages/Login/PasswordReset'
+
 
 
 
@@ -41,6 +43,7 @@ function App() {
      <Route path='/driver-register' element = {<DriverRegister/>}/>
      <Route path='/unauthorize' element ={<Unauthorized/>}/>
      <Route path='/signup'  element ={<Signup/>}/>
+     <Route path='/password-reset' element ={<PasswordReset/>}/>
    </Routes>
    </AuthProvider>
   )

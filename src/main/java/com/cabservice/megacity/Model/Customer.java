@@ -25,4 +25,9 @@ public class Customer {
     private String nicNumber;
     private String nicFront;
     private String nicBack;
+
+
+    //otp
+    private String otp;
+    private long otpGeneratedTime;
 }

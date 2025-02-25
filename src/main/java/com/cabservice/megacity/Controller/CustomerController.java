@@ -1,12 +1,14 @@
 package com.cabservice.megacity.Controller;
 
 import com.cabservice.megacity.Model.Customer;
+import com.cabservice.megacity.Repository.CustomerRepository;
 import com.cabservice.megacity.Security.JWT.JwtUtils;
 import com.cabservice.megacity.Service.CloudinaryService;
 import com.cabservice.megacity.Service.CustomerService;
 import com.cabservice.megacity.Service.EmailService;
 
 import jakarta.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -36,6 +39,9 @@ public class CustomerController {
     
     @Autowired
     private JwtUtils jwtUtils;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     // Create a new customer
     @PostMapping("/createCustomer")
@@ -164,4 +170,51 @@ public class CustomerController {
     private String uploadFile(MultipartFile file) throws IOException {
         return (file != null && !file.isEmpty()) ? cloudinaryService.uploadImage(file) : null;
     }
+
+
+
+     // Step 1: Generate OTP and send email
+     @PostMapping("/forgot-password")
+     public String forgotPassword(@RequestParam String email) {
+         Optional<Customer> userOptional = customerRepository.findByEmail(email);
+         if (userOptional.isPresent()) {
+             Customer user = userOptional.get();
+             String otp = emailService.generateOTP();
+             user.setOtp(otp);
+             user.setOtpGeneratedTime(System.currentTimeMillis());
+             customerRepository.save(user);
+             emailService.sendEmail(email, "Password Reset OTP", "Your OTP is: " + otp);
+             return "OTP sent successfully!";
+         }
+         return "User not found!";
+     }
+ 
+     // Step 2: Verify OTP
+     @PostMapping("/verify-otp")
+     public String verifyOtp(@RequestParam String email, @RequestParam String otp) {
+         Optional<Customer> userOptional = customerRepository.findByEmail(email);
+         if (userOptional.isPresent()) {
+             Customer user = userOptional.get();
+             long currentTime = System.currentTimeMillis();
+             if (user.getOtp().equals(otp) && (currentTime - user.getOtpGeneratedTime() <= 5 * 60 * 1000)) { // 5 minutes expiry
+                 return "OTP Verified!";
+             }
+             return "Invalid or expired OTP!";
+         }
+         return "User not found!";
+     }
+ 
+     // Step 3: Reset Password
+     @PostMapping("/reset-password")
+     public String resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+         Optional<Customer> userOptional = customerRepository.findByEmail(email);
+         if (userOptional.isPresent()) {
+             Customer user = userOptional.get();
+             user.setPassword(newPassword);
+             user.setOtp(null); // Clear OTP after successful password reset
+             customerRepository.save(user);
+             return "Password reset successfully!";
+         }
+         return "User not found!";
+     }
 }

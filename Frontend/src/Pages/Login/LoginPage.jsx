@@ -120,7 +120,7 @@ const LoginPage = () => {
               </label>
             </div>
             <Link
-              to="/forgot-password"
+              to="/password-reset"
               className="text-sm text-blue-500 hover:underline"
             >
               Forgot password?
