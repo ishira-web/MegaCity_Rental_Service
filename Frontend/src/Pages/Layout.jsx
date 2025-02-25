@@ -12,7 +12,7 @@ function Layout() {
   return (
     <div className='overflow-hidden'>
         
-        <Navbar/>
+         <Navbar/>
          <Hero/>
          <HeroSub/>
          <Service/>
