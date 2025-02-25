@@ -7,24 +7,25 @@ import Safety from '../Pages/Safety';
 import Footer from '../Pages/Footer';
 import { Outlet } from 'react-router-dom';
 import Faq from '../Pages/Faq';
-import Loader from '../components/Loader'; // Import the Loader component
+import Loader from './Components/Loader';
+ // Import the Loader component
 
 function Layout() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Simulate loading delay
     const timer = setTimeout(() => {
       setIsLoaded(true);
-    }, 3500); // Adjust based on the loader duration
+    }, 10000); // Matches the loader duration
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <>
-      {!isLoaded && <Loader />} {/* Show loader before the page content */}
-      <div className={`overflow-hidden transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      {!isLoaded && <Loader />}
+      <div className={`transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
+        {/* Your landing page content */}
         <Navbar />
         <Hero />
         <HeroSub />
@@ -32,7 +33,6 @@ function Layout() {
         <Safety />
         <Faq />
         <Footer />
-        <Outlet />
       </div>
     </>
   );
