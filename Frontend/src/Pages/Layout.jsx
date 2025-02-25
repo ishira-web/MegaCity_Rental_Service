@@ -11,7 +11,7 @@ import Faq from '../Pages/Faq'
 function Layout() {
   return (
     <div className='overflow-hidden'>
-
+        
         <Navbar/>
          <Hero/>
          <HeroSub/>
