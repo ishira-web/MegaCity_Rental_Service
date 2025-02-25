@@ -3,6 +3,9 @@ package com.cabservice.megacity.Controller;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.cabservice.megacity.Service.EmailService;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +37,8 @@ public class DriverController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailService emailService;
     /**
      * Creates a new driver.
      * @param driverPhoto The driver photo file.
@@ -44,7 +49,6 @@ public class DriverController {
      * @param password The driver's password.
      * @param driverAddress The driver's address.
      * @param driverPhone The driver's phone number.
-     * @param driverStatues The driver's status.
      * @param currentLocation The driver's current location.
      * @param catID The category ID of the driver's vehicle.
      * @param catType The type of the driver's vehicle.
@@ -69,7 +73,7 @@ public Driver createDriver(
     @RequestParam("catModel") String catModel,
     @RequestParam("noOfSeats") String noOfSeats,
     @RequestParam("lagguageType") String lagguageType
-) throws IOException {
+) throws IOException, MessagingException {
     // Upload driver photo to Cloudinary
     String driverPhotoUrl = cloudinaryService.uploadImage(driverPhoto);
 
@@ -98,8 +102,11 @@ public Driver createDriver(
     driver.setLagguageType(lagguageType);
     driver.setCarImageUrls(carPhotoUrls); // Set car photo URLs
 
+        emailService.sendThankYouEmail(driverEmail,driverName);
     // Save the driver to the database
     return service.createDriver(driver);
+
+
 }
 
    
