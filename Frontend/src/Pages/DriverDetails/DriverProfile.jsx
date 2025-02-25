@@ -51,28 +51,28 @@ function DriverProfile() {
     fetchDriverDetails();
   }, [driverID, navigate]);
 
-  // Fetch bookings when the bookings tab is active
-  useEffect(() => {
-    const fetchBookings = async () => {
-      if (activeTab === 'bookings') {
-        try {
-          const token = localStorage.getItem('jwtToken');
-          const userId = localStorage.getItem('userId');
+  // // Fetch bookings when the bookings tab is active
+  // useEffect(() => {
+  //   const fetchBookings = async () => {
+  //     if (activeTab === 'bookings') {
+  //       try {
+  //         const token = localStorage.getItem('jwtToken');
+  //         const userId = localStorage.getItem('userId');
 
-          const response = await axios.get(`http://localhost:8080/auth/driver/${userId}/bookings`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          setBookings(response.data); // Assuming response.data contains the bookings categorized
-        } catch (error) {
-          console.error('Failed to fetch bookings:', error);
-        }
-      }
-    };
+  //         const response = await axios.get(`http://localhost:8080/auth/driver/${userId}/bookings`, {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         });
+  //         setBookings(response.data); // Assuming response.data contains the bookings categorized
+  //       } catch (error) {
+  //         console.error('Failed to fetch bookings:', error);
+  //       }
+  //     }
+  //   };
 
-    fetchBookings();
-  }, [activeTab]);
+  //   fetchBookings();
+  // }, [activeTab]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;

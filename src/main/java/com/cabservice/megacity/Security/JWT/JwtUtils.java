@@ -65,9 +65,11 @@ public class JwtUtils {
     }
 
     return Jwts.builder()
+            
             .setSubject(userDetails.getUsername())
             .claim("role", role)
             .claim("userId", userId)  // Store userId in token
+            .claim("userName", userDetails)
             .setIssuedAt(new Date())
             .setExpiration(new Date(new Date().getTime() + 1000 * 60 * 60 * 24)) // 24 hours validity
             .signWith(key(), SignatureAlgorithm.HS256)
@@ -88,6 +90,9 @@ public class JwtUtils {
           }
 
     }
+
+
+    
 
     public String getUsernameFromJwtToken(String token){
 

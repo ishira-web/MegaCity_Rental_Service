@@ -3,14 +3,14 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./AuthContext";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const { login } = useAuth();
+  const navigate = useNavigate(); // Use navigate for programmatic navigation
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,33 +23,38 @@ const LoginPage = () => {
 
       // Assuming the backend returns a JWT token in response
       const { token, role, userId } = response.data;
-      
-      // Save the token to localStorage or sessionStorage
+
+      // Save the token and user details to localStorage
       localStorage.setItem("jwtToken", token);
       localStorage.setItem("role", role);
       localStorage.setItem("userId", userId);
 
-
+      // Call the login function from AuthContext
       login(token);
-      toast.success("Login successful!", { position: "top-center" });
-      // Redirect to the desired page, e.g., dashboard
-      if (role === "ROLE_CUSTOMER") {
-        window.location.href = "/"; // Redirect to customer home page
-      } else if (role === "ROLE_DRIVER") {
-        window.location.href = "/driver-profile"; // Redirect to driver dashboard
-      }  else if (role === "ROLE_ADMIN") {
-        window.location.href = "/admin/*"; // Redirect to ADMIN dashboard
 
-      }else {
-        toast.success("this part under development", { position: "top-center" });
+      // Show success message
+      toast.success("Login successful!", { position: "top-center" });
+
+      // Redirect based on user role
+      switch (role) {
+        case "ROLE_CUSTOMER":
+          navigate("/"); // Redirect to customer home page
+          break;
+        case "ROLE_DRIVER":
+          navigate("/driver-profile"); // Redirect to driver dashboard
+          break;
+        case "ROLE_ADMIN":
+          navigate("/admin/*"); // Redirect to admin dashboard
+          break;
+        default:
+          toast.info("This part is under development", { position: "top-center" });
       }
     } catch (error) {
       console.error("Error during login:", error);
       setErrorMessage("Invalid username or password. Please try again.");
+      toast.error("Login failed. Please check your credentials.", { position: "top-center" });
     }
   };
-
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-200">
@@ -114,12 +119,12 @@ const LoginPage = () => {
                 Remember me
               </label>
             </div>
-            <a
-              href="/forgot-password"
+            <Link
+              to="/forgot-password"
               className="text-sm text-blue-500 hover:underline"
             >
               Forgot password?
-            </a>
+            </Link>
           </div>
 
           {/* Login Button */}
@@ -134,12 +139,12 @@ const LoginPage = () => {
         </form>
 
         {/* Register Link */}
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-6 text-center text-sm text-gray-600">
           Don’t have an account?{" "}
-         <Link to="/signup"> <h1 className="text-blue-500 hover:underline">
+          <Link to="/signup" className="text-blue-500 hover:underline">
             Sign up
-          </h1></Link>
-        </p>
+          </Link>
+        </div>
         <ToastContainer />
       </div>
     </div>

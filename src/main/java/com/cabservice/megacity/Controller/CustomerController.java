@@ -1,12 +1,12 @@
 package com.cabservice.megacity.Controller;
 
 import com.cabservice.megacity.Model.Customer;
+import com.cabservice.megacity.Security.JWT.JwtUtils;
 import com.cabservice.megacity.Service.CloudinaryService;
 import com.cabservice.megacity.Service.CustomerService;
 import com.cabservice.megacity.Service.EmailService;
 
 import jakarta.mail.MessagingException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/customers") // Base URL for all customer-related endpoints
+@RequestMapping("/auth")
 public class CustomerController {
 
     @Autowired
@@ -29,14 +29,17 @@ public class CustomerController {
     private CustomerService customerService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private EmailService emailService; // Inject Email Service
 
     @Autowired
-    private EmailService emailService;
+    private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private JwtUtils jwtUtils;
 
     // Create a new customer
-    @PostMapping("/auth/createCustomer")
-    public ResponseEntity<Customer> createCustomer(
+    @PostMapping("/createCustomer")
+    public ResponseEntity<?> createCustomer(
             @RequestParam(value = "customerProfile", required = false) MultipartFile customerProfile,
             @RequestParam(value = "nicFront", required = false) MultipartFile nicFront,
             @RequestParam(value = "nicBack", required = false) MultipartFile nicBack,
@@ -46,74 +49,61 @@ public class CustomerController {
             @RequestParam("dob") String dob,
             @RequestParam("userName") String userName,
             @RequestParam("password") String password,
-            @RequestParam("nicNumber") String nicNumber) throws IOException, MessagingException {
+            @RequestParam("nicNumber") String nicNumber) {
 
-        // Upload files to Cloudinary (if provided)
-        String customerProfileUrl = uploadFile(customerProfile);
-        String nicFrontUrl = uploadFile(nicFront);
-        String nicBackUrl = uploadFile(nicBack);
+        try {
+            // Upload files to Cloudinary (if provided)
+            String customerProfileUrl = uploadFile(customerProfile);
+            String nicFrontUrl = uploadFile(nicFront);
+            String nicBackUrl = uploadFile(nicBack);
 
-        // Create and populate the Customer object
-        Customer customer = new Customer();
-        customer.setName(name);
-        customer.setEmail(email);
-        customer.setPhone(phone);
-        customer.setDob(dob);
-        customer.setUserName(userName);
-        customer.setPassword(passwordEncoder.encode(password)); // Encrypt password
-        customer.setNicNumber(nicNumber);
-        customer.setCustomerProfile(customerProfileUrl);
-        customer.setNicFront(nicFrontUrl);
-        customer.setNicBack(nicBackUrl);
+            // Create and populate the Customer object
+            Customer customer = new Customer();
+            customer.setName(name);
+            customer.setEmail(email);
+            customer.setPhone(phone);
+            customer.setDob(dob);
+            customer.setUserName(userName);
+            customer.setPassword(passwordEncoder.encode(password)); // Encrypt password
+            customer.setNicNumber(nicNumber);
+            customer.setCustomerProfile(customerProfileUrl);
+            customer.setNicFront(nicFrontUrl);
+            customer.setNicBack(nicBackUrl);
 
-        // Save the customer to the database
-        Customer createdCustomer = customerService.createCustomer(customer);
+            // Save customer to database
+            Customer createdCustomer = customerService.createCustomer(customer);
 
-        // Send welcome email
-        emailService.sendWelcomeEmail(email, name);
+            // Send Thank You Email
+            emailService.sendThankYouEmail(email, name);
 
-        return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
+            return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
+
+        } catch (IOException | MessagingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
     }
 
     // Get all customers
-    @GetMapping
+    @GetMapping("/getAllCustomers")
     public ResponseEntity<List<Customer>> getAllCustomers() {
         List<Customer> customers = customerService.getAllCustomers();
         return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 
     // Get customer by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable Long id) {
+    @GetMapping("/getCustomerByID/{id}")
+    public ResponseEntity<?> getCustomerById(@PathVariable String id) {
         Customer customer = customerService.getCustomerById(id);
         if (customer != null) {
             return new ResponseEntity<>(customer, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found!");
         }
-    }
-
-    // Get customer by email
-    @GetMapping("/email/{email}")
-    public ResponseEntity<Customer> getCustomerByEmail(@PathVariable String email) {
-        Customer customer = customerService.getCustomerByEmail(email);
-        if (customer != null) {
-            return new ResponseEntity<>(customer, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    // Get customers by name
-    @GetMapping("/name/{name}")
-    public ResponseEntity<List<Customer>> getCustomersByName(@PathVariable String name) {
-        List<Customer> customers = customerService.getCustomersByName(name);
-        return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 
     // Update customer by ID
-    @PutMapping("/{id}")
-    public ResponseEntity<Customer> updateCustomer(
+    @PutMapping("/updateCustomer/{id}")
+    public ResponseEntity<?> updateCustomer(
             @PathVariable String id,
             @RequestParam(value = "customerProfile", required = false) MultipartFile customerProfile,
             @RequestParam(value = "nicFront", required = false) MultipartFile nicFront,
@@ -124,54 +114,54 @@ public class CustomerController {
             @RequestParam(value = "dob", required = false) String dob,
             @RequestParam(value = "userName", required = false) String userName,
             @RequestParam(value = "password", required = false) String password,
-            @RequestParam(value = "nicNumber", required = false) String nicNumber) throws IOException {
+            @RequestParam(value = "nicNumber", required = false) String nicNumber) {
 
-        // Upload files to Cloudinary (if provided)
-        String customerProfileUrl = uploadFile(customerProfile);
-        String nicFrontUrl = uploadFile(nicFront);
-        String nicBackUrl = uploadFile(nicBack);
+        try {
+            // Upload files to Cloudinary (if provided)
+            String customerProfileUrl = uploadFile(customerProfile);
+            String nicFrontUrl = uploadFile(nicFront);
+            String nicBackUrl = uploadFile(nicBack);
 
-        // Create and populate the Customer object
-        Customer customer = new Customer();
-        customer.setCustomerId(id);;
-        customer.setName(name);
-        customer.setEmail(email);
-        customer.setPhone(phone);
-        customer.setDob(dob);
-        customer.setUserName(userName);
-        if (password != null) {
-            customer.setPassword(passwordEncoder.encode(password)); // Encrypt password
-        }
-        customer.setNicNumber(nicNumber);
-        customer.setCustomerProfile(customerProfileUrl);
-        customer.setNicFront(nicFrontUrl);
-        customer.setNicBack(nicBackUrl);
+            // Get existing customer
+            Customer customer = customerService.getCustomerById(id);
+            if (customer == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found!");
+            }
 
-        // Update the customer in the database
-        Customer updatedCustomer = customerService.updateCustomer(customer);
-        if (updatedCustomer != null) {
+            // Update fields if provided
+            if (name != null) customer.setName(name);
+            if (email != null) customer.setEmail(email);
+            if (phone != null) customer.setPhone(phone);
+            if (dob != null) customer.setDob(dob);
+            if (userName != null) customer.setUserName(userName);
+            if (password != null) customer.setPassword(passwordEncoder.encode(password));
+            if (nicNumber != null) customer.setNicNumber(nicNumber);
+            if (customerProfileUrl != null) customer.setCustomerProfile(customerProfileUrl);
+            if (nicFrontUrl != null) customer.setNicFront(nicFrontUrl);
+            if (nicBackUrl != null) customer.setNicBack(nicBackUrl);
+
+            // Save updated customer
+            Customer updatedCustomer = customerService.updateCustomer(customer);
             return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating customer: " + e.getMessage());
         }
     }
 
     // Delete customer by ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+    @DeleteMapping("/deleteCustomer/{id}")
+    public ResponseEntity<String> deleteCustomer(@PathVariable String id) {
         boolean isDeleted = customerService.deleteCustomer(id);
         if (isDeleted) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.ok("Customer deleted successfully!");
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Customer not found!");
         }
     }
 
     // Helper method to upload files to Cloudinary
     private String uploadFile(MultipartFile file) throws IOException {
-        if (file != null && !file.isEmpty()) {
-            return cloudinaryService.uploadImage(file);
-        }
-        return null;
+        return (file != null && !file.isEmpty()) ? cloudinaryService.uploadImage(file) : null;
     }
 }

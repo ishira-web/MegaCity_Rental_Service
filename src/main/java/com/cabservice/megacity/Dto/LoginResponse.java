@@ -12,8 +12,8 @@ public class LoginResponse {
 
 
     public LoginResponse(String token, String role, String userId) {
-        this.token = token;
-        this.role = role;
+        this.token =  token;
+        this.role =   role;
         this.userId = userId;
 
     }

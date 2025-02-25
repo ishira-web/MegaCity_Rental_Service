@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +28,7 @@ public class BookingController {
      * @param booking The booking details from the request body.
      * @return The created booking wrapped in a ResponseEntity.
      */
-    @PostMapping
+    @PostMapping("/auth/createBooking")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
         Booking createdBooking = bookingService.createBooking(booking);
@@ -44,7 +43,7 @@ public class BookingController {
      */
 
      
-    @PutMapping("/{id}")
+    @PutMapping("/updateBooking/{id}")
     public ResponseEntity<Booking> updateBooking(@PathVariable("id") String bookingId, @RequestBody Booking bookingDetails) {
         Booking updatedBooking = bookingService.updateBooking(bookingId, bookingDetails);
         if (updatedBooking != null) {
@@ -60,7 +59,7 @@ public class BookingController {
      */
 
 
-    @GetMapping("/{id}")
+    @GetMapping("/auth/getbookignByID/{id}")
     public ResponseEntity<Booking> getBookingById(@PathVariable("id") String bookingId) {
         Optional<Booking> booking = bookingService.getBookingById(bookingId);
         return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -70,7 +69,7 @@ public class BookingController {
      * Retrieves all bookings.
      * @return A list of all bookings.
      */
-    @GetMapping
+    @GetMapping("/auth/getAllBookings")
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingService.getAllBookings();
         return ResponseEntity.ok(bookings);
