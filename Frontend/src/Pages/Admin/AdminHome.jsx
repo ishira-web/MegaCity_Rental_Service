@@ -19,12 +19,12 @@ function AdminHome() {
   return (
     <div className="w-full min-h-screen bg-white font-simplon flex">
       {/* Left Sidebar */}
-      <div className="w-[250px] min-h-screen bg-[#344955] rounded-l-[16px] flex flex-col items-center py-6 text-white shadow-lg">
+      <div className="w-[250px] h-auto bg-[#344955] rounded-l-[16px] flex flex-col items-center py-6 text-white shadow-lg">
         <h1 className="text-[26px] mb-8 text-center">Admin Dashboard</h1>
         <div className="w-full flex flex-col items-center gap-12">
           <Link
             to="/admin/dashboard"
-            className={`sidebar-link ${selected === 'dashboard' ? 'bg-[#2C3E50] py-4 px-6' : 'hover:bg-[#2C3E50] py-4 px-6 rounded-md'}`}
+            className={`sidebar-link ${selected === 'dashboard' ? 'bg-[#2C3E50] py-4 px-6' : 'hover:bg-[#2C3E50]  py-4 px-6 rounded-md'}`}
             onClick={() => handleSelect('dashboard', 'Dashboard')}
           >
             <div className="flex items-center gap-6">
@@ -72,6 +72,10 @@ function AdminHome() {
               <span className="text-lg">Admins</span>
             </div>
           </Link>
+
+          <div>
+            <button className='bg-red-500 text-white px-5 rounded-md py-3'>Logout</button>
+          </div>
         </div>
       </div>
 
