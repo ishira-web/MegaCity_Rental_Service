@@ -47,18 +47,18 @@ function Dashboard() {
           </div>
         </div>
       </div>
-      
+      {/* New Drivers Section */}
       <div className='flex flex-row justify-between'>
         <div className='border w-[25vw] h-[30vw] ml-3 shadow-md bg-white'>
           <div className='flex justify-center p-2'>
             <h1 className='font-semibold'>New Drivers</h1>
           </div>
           <div className='flex flex-row justify-between gap-5 px-3 py-3 border-t hover:bg-black hover:text-yellow-50 border-b transition'>
-            <img src={Ban} alt="pic" className='w-6 h-6 rounded-full' />
+            <img src={Ban} alt="pic" className='w-6 h-6 rounded-full object-cover' />
             <h1>Ishira Pahasara</h1>
             <div className='flex flex-row gap-2'>
               <button className='bg-green-600 text-white px-1 py-1 rounded-md'>Accept</button>
-              <button className='bg-red-600 text-white px-1 py-1 rounded-md'>Decline</button>
+              <button className='bg-red-600 text-white px-1 py-1 rounded-md'>Reject</button>
             </div>
           </div>
         </div>
@@ -114,7 +114,7 @@ function Dashboard() {
               <label className='block text-sm font-medium'>Price per Kilometer</label>
               <input type='number' className='w-full border p-2 rounded-md' placeholder='Enter Price' value={price} onChange={(e) => setPrice(e.target.value)} />
               
-              <button className='bg-blue-600 text-white p-2 rounded-md w-full mt-3 flex items-center justify-center gap-2'><Check /> Add Vehicle</button>
+              <button className='bg-blue-600 text-white p-2 rounded-md w-full mt-3 flex items-center justify-center gap-2'><Check /> Add Vehicle Category</button>
             </div>
           )}
         </div>

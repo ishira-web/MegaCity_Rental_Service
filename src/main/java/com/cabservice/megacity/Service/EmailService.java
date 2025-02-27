@@ -77,4 +77,64 @@ public class EmailService {
         message.setText(body);
         mailSender.send(message);
     }
+
+    public void sendRejectionEmail(String driverEmail, String driverName) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+    
+        helper.setFrom("your-email@gmail.com");
+        helper.setTo(driverEmail);
+        helper.setSubject("🚫 MegaCity Cab Service - Application Rejected");
+    
+        // Email content with styling
+        String emailContent = "<html>" +
+                "<head>" +
+                "<style>" +
+                "body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }" +
+                ".container { width: 100%; max-width: 600px; background: #ffffff; margin: 20px auto; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); text-align: center; }" +
+                ".header { font-size: 24px; color: #ff0000; font-weight: bold; }" +
+                ".content { padding: 20px; font-size: 16px; color: #333; }" +
+                ".footer { padding: 15px; font-size: 14px; color: #666; }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<div class='container'>" +
+                "   <div class='header'>Application Rejected 🚫</div>" +
+                "   <div class='content'>" +
+                "       <h2>Dear " + driverName + ",</h2>" +
+                "       <p>We regret to inform you that your application to become a driver at MegaCity Cab Service has been declined.</p>" +
+                "       <p>If you have any questions or believe this was an error, feel free to contact our support team.</p>" +
+                "       <p>Thank you for your interest, and we wish you the best in your future endeavors.</p>" +
+                "   </div>" +
+                "   <div class='footer'>© 2025 MegaCity Cab Service. All rights reserved.</div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+    
+        helper.setText(emailContent, true);
+        mailSender.send(message);
+    }
+
+    public void sendBanNotificationEmail(String toEmail, String driverName) throws MessagingException {
+        String subject = "Account Banned - MegaCity Cab Service";
+        String body = "<h1>Dear " + driverName + ",</h1>"
+                + "<p>We regret to inform you that your driver account with MegaCity Cab Service has been banned due to violations of our policies.</p>"
+                + "<p>If you believe this is a mistake, please contact our support team.</p>"
+                + "<p>Best Regards,<br>MegaCity Team</p>";
+    
+        sendEmail(toEmail, subject, body);
+    }
+    
+    
+    public void sendDriverDeletionEmail(String toEmail, String driverName) throws MessagingException {
+        String subject = "Account Deleted - MegaCity Cab Service";
+        String body = "<h1>Dear " + driverName + ",</h1>"
+                + "<p>We regret to inform you that your driver account with MegaCity Cab Service has been permanently deleted.</p>"
+                + "<p>If you have any questions, please contact our support team.</p>"
+                + "<p>Best Regards,<br>MegaCity Team</p>";
+    
+        sendEmail(toEmail, subject, body);
+    }
+    
+    
 }
