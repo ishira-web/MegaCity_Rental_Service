@@ -1,380 +1,434 @@
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import axios from "axios";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { Camera, CheckCircle } from "lucide-react";
 
-const DriverRegister = () => {
-  const [categories, setCategories] = useState([]);
-  const [carModels, setCarModels] = useState([]);
-  const [selectedCarType, setSelectedCarType] = useState("");
-  const [seats, setSeats] = useState(0);
-  const [luggage, setLuggage] = useState("");
-  const [carPhotos, setCarPhotos] = useState([]);
-  const [driverPhoto, setDriverPhoto] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+function DriverRegister() {
+  const [formData, setFormData] = useState({
+    driverName: "",
+    driverEmail: "",
+    userName: "",
+    password: "",
+    driverAddress: "",
+    driverPhone: "",
+    currentLocation: "",
+    catID: "",
+    catType: "",
+    catModel: "",
+    noOfSeats: "",
+    driverNic: "",
+    acType: "",
+    lagguageType: "",
+    vehicalNumber: "",
+  });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-  } = useForm();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [carImageUrls, setCarImageUrls] = useState({
+    frontView: null,
+    sideView: null,
+    backView: null
+  });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [catTypes, setCatTypes] = useState([]);
+   const [catModels, setCatModels] = useState([]);
+    const [loadingCategories, setLoadingCategories] = useState(false);
 
-  const selectedCarModel = watch("carModel");
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await axios.get("http://localhost:8080/auth/getAllCategories", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const uniqueCategories = response.data.filter(
-          (category, index, self) =>
-            index === self.findIndex((c) => c.catType === category.catType)
-        );
-        setCategories(uniqueCategories);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  const handleCarTypeChange = async (e) => {
-    const selectedType = e.target.value;
-    setSelectedCarType(selectedType);
+useEffect(() => {
+  const fetchCategories = async () => {
+    setLoadingCategories(true);
     try {
-      const token = localStorage.getItem("authToken");
-      const response = await axios.get(`http://localhost:8080/auth/catModels/${selectedType}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch("http://localhost:8080/auth/getAllCategories");
+      const data = await response.json();
+      
+      // Filter unique catTypes
+      const uniqueCatTypes = Array.from(
+        new Set(data.map(category => category.catType))
+      ).map(catType => {
+        // Return the first occurrence of each catType with its catID
+        return data.find(category => category.catType === catType);
       });
-      setCarModels(response.data);
-    } catch (error) {
-      console.error("Error fetching car models:", error);
-      setCarModels([]);
-    }
-  };
-
-  useEffect(() => {
-    if (selectedCarModel) {
-      const selectedModel = carModels.find((model) => model.catModel === selectedCarModel);
-      if (selectedModel) {
-        setSeats(selectedModel.noOfSeats);
-        setLuggage(selectedModel.lagguageType);
-        setValue("seats", selectedModel.noOfSeats);
-        setValue("lagguageType", selectedModel.lagguageType);
-      }
-    }
-  }, [selectedCarModel, carModels, setValue]);
-
-  const handleCarPhotosUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setCarPhotos(files);
-  };
-
-  const handleDriverPhotoUpload = (e) => {
-    const file = e.target.files[0];
-    setDriverPhoto(file);
-  };
-
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    try {
-      const token = localStorage.getItem("authToken");
-      const formData = new FormData();
-
-      // Append driver details
-      formData.append("driverName", data.fullName);
-      formData.append("driverEmail", data.email);
-      formData.append("userName", data.username);
-      formData.append("password", data.password); // Plain-text password
-      formData.append("driverAddress", data.address);
-      formData.append("driverPhone", data.phone);
-      formData.append("driverStatues", "Pending");
-      formData.append("currentLocation", "Unknown");
-      formData.append("catID", selectedCarType);
-      formData.append("catType", selectedCarType);
-      formData.append("catModel", data.carModel);
-      formData.append("noOfSeats", seats);
-      formData.append("lagguageType", luggage);
-      formData.append("acType", data.acOption);
-      formData.append("driverNic", data.driverNic);
-      formData.append("driverLicenseNumber", data.driverLicenseNumber);
-      formData.append("vehicalNumber", data.vehicleNumber);
-
-      // Append driver photo
-      if (driverPhoto) {
-        formData.append("imageUrl", driverPhoto);
-      }
-
-      // Append car photos
-      carPhotos.forEach((file) => {
-        formData.append("carImageUrls", file);
-      });
-
-      const response = await axios.post("http://localhost:8080/auth/createDriver", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      console.log("Driver created successfully:", response.data);
-      toast.success("Driver Registration is pending. Check your email.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      // Redirect to Home Page
-      navigate("/");
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("Failed to register driver. Please try again.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      
+      setCatTypes(uniqueCatTypes); // Set only unique category types
+    } catch (err) {
+      setError("Failed to load vehicle categories");
     } finally {
-      setIsLoading(false);
+      setLoadingCategories(false);
+    }
+  };
+  fetchCategories();
+}, []);
+  const fetchCatModels = async (catType) => {
+    try {
+      const response = await fetch(`http://localhost:8080/auth/catModels/${catType}`);
+      const data = await response.json();
+      setCatModels(data);
+    } catch (err) {
+      setError("Failed to load vehicle models");
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleCatTypeChange = (e) => {
+    const { value } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      catType: value,
+      catModel: "",
+      noOfSeats: "",
+      lagguageType: ""
+    }));
+    setCatModels([]);
+    if (value) {
+      fetchCatModels(value);
+    }
+  };
+
+  const handleCatModelChange = (e) => {
+    const { value } = e.target;
+    const selectedModel = catModels.find(model => model.catModel === value);
+    
+    setFormData(prev => ({
+      ...prev,
+      catModel: value,
+      noOfSeats: selectedModel?.noOfSeats || "",
+      lagguageType: selectedModel?.lagguageType || "",
+      catID: selectedModel?.catID || ""
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    if (name === "imageUrl") {
+      setImageUrl(files[0]);
+    } else if (name === "frontView") {
+      setCarImageUrls(prev => ({ ...prev, frontView: files[0] }));
+    } else if (name === "sideView") {
+      setCarImageUrls(prev => ({ ...prev, sideView: files[0] }));
+    } else if (name === "backView") {
+      setCarImageUrls(prev => ({ ...prev, backView: files[0] }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    if (!imageUrl || !carImageUrls.frontView || !carImageUrls.sideView || !carImageUrls.backView) {
+      setError("Please upload all required images");
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.catType || !formData.catModel) {
+      setError("Please select both car type and model");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const data = new FormData();
+      data.append("imageUrl", imageUrl);
+      data.append("carImageUrls", carImageUrls.frontView);
+      data.append("carImageUrls", carImageUrls.sideView);
+      data.append("carImageUrls", carImageUrls.backView);
+      data.append("driverName", formData.driverName);
+      data.append("driverEmail", formData.driverEmail);
+      data.append("userName", formData.userName);
+      data.append("password", formData.password);
+      data.append("driverAddress", formData.driverAddress);
+      data.append("driverPhone", formData.driverPhone);
+      data.append("currentLocation", formData.currentLocation || "Not specified");
+      data.append("catID", formData.catID);
+      data.append("catType", formData.catType);
+      data.append("catModel", formData.catModel);
+      data.append("noOfSeats", formData.noOfSeats);
+      data.append("driverNic", formData.driverNic);
+      data.append("acType", formData.acType);
+      data.append("lagguageType", formData.lagguageType);
+      data.append("vehicalNumber", formData.vehicalNumber);
+
+      const response = await fetch("http://localhost:8080/auth/createDriver", {
+        method: "POST",
+        body: data,
+      });
+
+      const result = await response.text();
+      if (!response.ok) {
+        throw new Error(result || "Failed to create driver");
+      }
+
+      alert("Driver account created successfully!");
+      setFormData({
+        driverName: "",
+        driverEmail: "",
+        userName: "",
+        password: "",
+        driverAddress: "",
+        driverPhone: "",
+        currentLocation: "",
+        catID: "",
+        catType: "",
+        catModel: "",
+        noOfSeats: "",
+        driverNic: "",
+        acType: "",
+        lagguageType: "",
+        vehicalNumber: "",
+      });
+      setImageUrl(null);
+      setCarImageUrls({ frontView: null, sideView: null, backView: null });
+      setCatModels([]);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full font-sans bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-6 md:p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="p-6 sm:p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">
-            Mega City Cab Driver Registration
-          </h1>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Personal Info Section */}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm">
+        <div className="px-8 py-6 border-b border-gray-200">
+          <h1 className="text-2xl font-bold">Driver Registration</h1>
+          <p className="text-gray-600 mt-1">
+            Please fill in all required information to complete your registration.
+          </p>
+        </div>
+        {error && (
+          <div className="p-4 mx-8 mt-4 bg-red-50 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+          <section>
+            <h2 className="text-lg font-semibold mb-4 pb-2 border-b border-gray-200">
+              Personal Information
+            </h2>
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                Personal Information
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {["fullName", "email", "address", "phone", "username", "password", "driverNic", "driverLicenseNumber", "vehicleNumber"].map((field, idx) => (
-                  <div key={idx}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {field === "fullName"
-                        ? "Full Name"
-                        : field === "email"
-                        ? "Email Address"
-                        : field === "address"
-                        ? "Address"
-                        : field === "phone"
-                        ? "Telephone Number"
-                        : field === "username"
-                        ? "Username"
-                        : field === "password"
-                        ? "Password"
-                        : field === "driverNic"
-                        ? "Driver NIC"
-                        : field === "driverLicenseNumber"
-                        ? "Driver License Number"
-                        : "Vehicle Number"}
-                    </label>
-                    <input
-                      type={
-                        field === "phone"
-                          ? "tel"
-                          : field === "email"
-                          ? "email"
-                          : field === "password"
-                          ? "password"
-                          : "text"
-                      }
-                      {...register(field, {
-                        required: true,
-                        pattern: field === "email"
-                          ? /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/
-                          : field === "phone"
-                          ? /^[0-9]{10}$/
-                          : undefined,
-                        minLength: field === "password" ? 6 : undefined,
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder={`Enter your ${field.replace(/([A-Z])/g, " $1")}`}
-                    />
-                    {errors[field] && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {field === "fullName"
-                          ? "Full name is required"
-                          : field === "email"
-                          ? "Enter a valid email address"
-                          : field === "address"
-                          ? "Address is required"
-                          : field === "phone"
-                          ? "Invalid phone number (10 digits required)"
-                          : field === "username"
-                          ? "Username is required"
-                          : field === "driverNic"
-                          ? "Driver NIC is required"
-                          : field === "driverLicenseNumber"
-                          ? "Driver License Number is required"
-                          : "Vehicle Number is required"}
-                      </p>
-                    )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <input type="text" name="driverName" value={formData.driverName} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg" required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <textarea name="driverAddress" value={formData.driverAddress} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg" rows={3} required />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                  <input type="tel" name="driverPhone" value={formData.driverPhone} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input type="email" name="driverEmail" value={formData.driverEmail} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg" required />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                  <input type="text" name="userName" value={formData.userName} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <input type="password" name="password" value={formData.password} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg" required />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                  <div className="space-y-1 text-center">
+                    <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="flex text-sm text-gray-600">
+                      <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
+                        <span>Upload a file</span>
+                        <input type="file" name="imageUrl" onChange={handleFileChange} className="sr-only" accept="image/*" required />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
+          </section>
 
-            {/* Vehicle Info Section */}
+          {/* Updated Vehicle Selection Section */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4 pb-2 border-b border-gray-200">Vehicle Selection</h2>
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                Vehicle Information
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Car Type</label>
-                  <select
-                    {...register("carType", { required: true })}
-                    onChange={handleCarTypeChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  <select 
+                    name="catType" 
+                    value={formData.catType} 
+                    onChange={handleCatTypeChange} 
+                    className="w-full p-2 border border-gray-300 rounded-lg" 
+                    required
+                    disabled={loadingCategories}
                   >
-                    <option value="">Select car type</option>
-                    {categories.map((car) => (
-                      <option key={car.catID} value={car.catType}>
-                        {car.catType}
+                    <option value="">{loadingCategories ? "Loading..." : "Select car type"}</option>
+                    {catTypes.map(category => (
+                      <option key={category.catID} value={category.catType}>
+                        {category.catType}
                       </option>
                     ))}
                   </select>
-                  {errors.carType && (
-                    <p className="text-red-500 text-xs mt-1">Car type is required</p>
-                  )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Car Model</label>
-                  <select
-                    {...register("carModel", { required: true })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    disabled={!selectedCarType}
+                  <select 
+                    name="catModel" 
+                    value={formData.catModel} 
+                    onChange={handleCatModelChange} 
+                    className="w-full p-2 border border-gray-300 rounded-lg" 
+                    required
+                    disabled={!formData.catType || catModels.length === 0}
                   >
                     <option value="">Select car model</option>
-                    {carModels.map((model) => (
-                      <option key={model.catModel} value={model.catModel}>
-                        {model.catModel}
+                    {catModels.map(category => (
+                      <option key={category.catID} value={category.catModel}>
+                        {category.catModel}
                       </option>
                     ))}
                   </select>
-                  {errors.carModel && (
-                    <p className="text-red-500 text-xs mt-1">Car model is required</p>
-                  )}
                 </div>
-
-                {selectedCarModel && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Number of Seats
-                      </label>
-                      <input
-                        type="text"
-                        value={seats}
-                        readOnly
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Luggage Type</label>
-                      <input
-                        type="text"
-                        value={luggage}
-                        readOnly
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">AC Option</label>
-                      <select
-                        {...register("acOption", { required: true })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Select AC option</option>
-                        <option value="With AC">With AC</option>
-                        <option value="Without AC">Without AC</option>
-                      </select>
-                      {errors.acType && (
-                        <p className="text-red-500 text-xs mt-1">AC option is required</p>
-                      )}
-                    </div>
-                  </>
-                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Number of Seats</label>
+                  <input
+                    type="text"
+                    name="noOfSeats"
+                    value={formData.noOfSeats}
+                    className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100"
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Luggage Type</label>
+                  <input
+                    type="text"
+                    name="lagguageType"
+                    value={formData.lagguageType}
+                    className="w-full p-2 border border-gray-300 rounded-lg bg-gray-100"
+                    readOnly
+                  />
+                </div>
               </div>
             </div>
+          </section>
 
-            {/* Documents Section */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4 pb-2 border-b border-gray-200">Additional Features</h2>
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                Documents
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Driver Photo</label>
-                  <input
-                    type="file"
-                    onChange={handleDriverPhotoUpload}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                  {driverPhoto && (
-                    <p className="text-sm text-gray-500 mt-1">1 file selected</p>
-                  )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">AC Type</label>
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <input type="radio" id="with-ac" name="acType" value="with-ac" onChange={handleInputChange} className="h-4 w-4 text-blue-600" required />
+                    <label htmlFor="with-ac" className="ml-2">With AC</label>
+                  </div>
+                  <div className="flex items-center">
+                    <input type="radio" id="without-ac" name="acType" value="without-ac" onChange={handleInputChange} className="h-4 w-4 text-blue-600" />
+                    <label htmlFor="without-ac" className="ml-2">Without AC</label>
+                  </div>
                 </div>
-
+              </div>
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Car Photos</label>
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleCarPhotosUpload}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                  {carPhotos.length > 0 && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      {carPhotos.length} file(s) selected
-                    </p>
-                  )}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Front View</label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                    <div className="space-y-1 text-center">
+                      <Camera className="mx-auto h-8 w-8 text-gray-400" />
+                      <div className="text-sm text-gray-600">
+                        <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
+                          <span>Upload front view</span>
+                          <input type="file" name="frontView" onChange={handleFileChange} className="sr-only" accept="image/*" required />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Side View</label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                    <div className="space-y-1 text-center">
+                      <Camera className="mx-auto h-8 w-8 text-gray-400" />
+                      <div className="text-sm text-gray-600">
+                        <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
+                          <span>Upload side view</span>
+                          <input type="file" name="sideView" onChange={handleFileChange} className="sr-only" accept="image/*" required />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Back View</label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                    <div className="space-y-1 text-center">
+                      <Camera className="mx-auto h-8 w-8 text-gray-400" />
+                      <div className="text-sm text-gray-600">
+                        <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
+                          <span>Upload back view</span>
+                          <input type="file" name="backView" onChange={handleFileChange} className="sr-only" accept="image/*" required />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          </section>
 
-            {/* Submit Button */}
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                Register
-              </button>
+          <section>
+            <h2 className="text-lg font-semibold mb-4 pb-2 border-b border-gray-200">Final Details</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Driver NIC Number</label>
+                  <input type="text" name="driverNic" value={formData.driverNic} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg" required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Number</label>
+                  <input type="text" name="vehicalNumber" value={formData.vehicalNumber} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg" required />
+                </div>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-blue-800 mb-2">Before submitting, please ensure:</h3>
+                <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
+                  <li>All personal information is accurate</li>
+                  <li>Vehicle details are correctly entered</li>
+                  <li>All required images have been uploaded</li>
+                  <li>NIC and vehicle numbers are valid</li>
+                </ul>
+              </div>
             </div>
-          </form>
-        </div>
+          </section>
+
+          <div className="pt-6">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full px-4 py-2 rounded-lg text-white ${
+                loading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+              }`}
+            >
+              {loading ? "Submitting..." : "Submit Registration"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
-};
+}
 
 export default DriverRegister;

@@ -53,8 +53,8 @@ public ResponseEntity<String> createDriver(
         @RequestParam("noOfSeats") String noOfSeats,
         @RequestParam("driverNic") String driverNic,
         @RequestParam("acType") String acType,
-        @RequestParam("vehicalNumber") String vehicalNumber,
-        @RequestParam("luggageType") String luggageType
+        @RequestParam("lagguageType") String lagguageType,
+        @RequestParam("vehicalNumber") String vehicalNumber
 ) throws IOException, MessagingException {
 
     // 🔹 Check if a driver with this email already exists
@@ -97,10 +97,10 @@ public ResponseEntity<String> createDriver(
     driver.setAcType(acType);
     driver.setDriverNic(driverNic);
     driver.setCatType(catType);
+    driver.setLagguageType(lagguageType);
     driver.setCatModel(catModel);
     driver.setVehicalNumber(vehicalNumber);
     driver.setNoOfSeats(noOfSeats);
-    driver.setLagguageType(luggageType);
     driver.setCarImageUrls(carPhotoUrls);
     service.createDriver(driver);
     return ResponseEntity.ok("Driver account created successfully.");
