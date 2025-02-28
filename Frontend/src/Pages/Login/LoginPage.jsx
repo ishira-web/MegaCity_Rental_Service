@@ -41,7 +41,7 @@ const LoginPage = () => {
           navigate("/"); // Redirect to customer home page
           break;
         case "ROLE_DRIVER":
-          navigate("/driver-profile"); // Redirect to driver dashboard
+          navigate("/driver-profile/:id"); // Redirect to driver dashboard
           break;
         case "ROLE_ADMIN":
           navigate("/admin/*"); // Redirect to admin dashboard

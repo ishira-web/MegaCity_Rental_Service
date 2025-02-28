@@ -82,23 +82,36 @@ public class DriverService {
         return false;
     }
 
-    // Update Driver
-    public Driver updateDriver(String driverID, Driver updatedDriver) {
-        Driver existingDriver = driverRepository.findById(driverID).orElse(null);
-        if (existingDriver != null) {
+ // Update Driver (PATCH-style)
+public Driver updateDriver(String driverID, Driver updatedDriver) {
+    Driver existingDriver = driverRepository.findById(driverID).orElse(null);
+    if (existingDriver != null) {
+        // Update only the fields that are provided (non-null) in updatedDriver
+        if (updatedDriver.getDriverName() != null) {
             existingDriver.setDriverName(updatedDriver.getDriverName());
-            existingDriver.setDriverAddress(updatedDriver.getDriverAddress());
-            existingDriver.setDriverPhone(updatedDriver.getDriverPhone());
-            existingDriver.setDriverEmail(updatedDriver.getDriverEmail());
-            existingDriver.setUserName(updatedDriver.getUserName());
-            existingDriver.setPassword(updatedDriver.getPassword());
-            existingDriver.setDriverStatues(updatedDriver.getDriverStatues());
-            existingDriver.setCurrentLocation(updatedDriver.getCurrentLocation());
-            existingDriver.setAcType(updatedDriver.getAcType());
-            return driverRepository.save(existingDriver);
         }
-        return null;
+        if (updatedDriver.getDriverAddress() != null) {
+            existingDriver.setDriverAddress(updatedDriver.getDriverAddress());
+        }
+        if (updatedDriver.getDriverPhone() != null) {
+            existingDriver.setDriverPhone(updatedDriver.getDriverPhone());
+        }
+        if (updatedDriver.getPassword() != null) {
+            existingDriver.setPassword(updatedDriver.getPassword());
+        }
+        if (updatedDriver.getDriverStatues() != null) {
+            existingDriver.setDriverStatues(updatedDriver.getDriverStatues());
+        }
+        if (updatedDriver.getAcType() != null) {
+            existingDriver.setAcType(updatedDriver.getAcType());
+        }
+        if (updatedDriver.getImageUrl() !=null) {
+            existingDriver.setImageUrl(updatedDriver.getImageUrl());     
+        }
+        return driverRepository.save(existingDriver);
     }
+    return null;
+}
 
     public boolean deleteDriver(String driverID) {
         Optional<Driver> driverOptional = driverRepository.findById(driverID);

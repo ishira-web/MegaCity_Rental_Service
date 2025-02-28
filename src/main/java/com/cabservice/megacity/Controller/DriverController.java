@@ -145,7 +145,7 @@ public ResponseEntity<String> createDriver(
     /**
      * Bans a driver (Admin action)
      */
-    @PutMapping("/auth/banDriver/{driverID}")
+    @PutMapping("/banDriver/{driverID}")
     public ResponseEntity<String> banDriver(@PathVariable String driverID) throws MessagingException {
         Driver bannedDriver = service.getDriverByID(driverID);
         
@@ -189,10 +189,13 @@ public ResponseEntity<String> createDriver(
     /**
      * Updates a driver.
      */
-    @PutMapping("/updateDriver/{driverID}")
+    @PatchMapping("/driver/{driverID}")
     public ResponseEntity<Driver> updateDriver(@PathVariable String driverID, @RequestBody Driver updatedDriver) {
         Driver driver = service.updateDriver(driverID, updatedDriver);
-        return driver != null ? ResponseEntity.ok(driver) : ResponseEntity.notFound().build();
+        if (driver != null) {
+            return ResponseEntity.ok(driver);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     /**
