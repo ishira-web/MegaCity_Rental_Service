@@ -50,6 +50,16 @@ public class DriverService {
     public List<Driver> getDriversByStatus(String status) {
         return driverRepository.findByDriverStatues(status);
     }
+    
+    //Get Driver By Email
+    public Driver getDriverByEmail(String email) {
+        return driverRepository.findByDriverEmail(email);
+    }
+
+    //Get Driver By Username
+    public Optional<Driver> getDriverByUsername(String username) {
+        return driverRepository.findByUserName(username);
+    }
 
     // Approve Driver (Admin)
     public Driver approveDriver(String driverID) {
@@ -84,7 +94,7 @@ public class DriverService {
             existingDriver.setPassword(updatedDriver.getPassword());
             existingDriver.setDriverStatues(updatedDriver.getDriverStatues());
             existingDriver.setCurrentLocation(updatedDriver.getCurrentLocation());
-
+            existingDriver.setAcType(updatedDriver.getAcType());
             return driverRepository.save(existingDriver);
         }
         return null;

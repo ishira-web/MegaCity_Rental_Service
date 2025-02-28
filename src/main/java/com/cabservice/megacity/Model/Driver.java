@@ -29,8 +29,14 @@ public class Driver {
     private String currentLocation;
     private String catID;
     private String catType;
+    private String driverNic;
+    private String vehicalNumber;
     private String catModel;
     private String noOfSeats;
+    private String acType;
     private String lagguageType;
     private List<String> carImageUrls; // List of car photo URLs
+   
+    
+    
 }

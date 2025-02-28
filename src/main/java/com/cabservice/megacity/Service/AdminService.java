@@ -17,6 +17,7 @@ public class AdminService {
         System.out.println("Creating admin: " + admin);
         return adminRepository.save(admin);
     }
+     //Get Admin By ID
     public Admin getAdminById(String adminID) {
         return adminRepository.findById(adminID).get();
     }

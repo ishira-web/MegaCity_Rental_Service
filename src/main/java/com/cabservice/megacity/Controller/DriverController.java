@@ -37,53 +37,75 @@ public class DriverController {
      * Creates a new driver (Pending status by default)
      */
     @PostMapping("/auth/createDriver")
-    public Driver createDriver(
-            @RequestParam("imageUrl") MultipartFile imageUrl,
-            @RequestParam("carImageUrls") MultipartFile[] carImageUrls,
-            @RequestParam("driverName") String driverName,
-            @RequestParam("driverEmail") String driverEmail,
-            @RequestParam("userName") String userName,
-            @RequestParam("password") String password,
-            @RequestParam("driverAddress") String driverAddress,
-            @RequestParam("driverPhone") String driverPhone,
-            @RequestParam("currentLocation") String currentLocation,
-            @RequestParam("catID") String catID,
-            @RequestParam("catType") String catType,
-            @RequestParam("catModel") String catModel,
-            @RequestParam("noOfSeats") String noOfSeats,
-            @RequestParam("luggageType") String luggageType
-    ) throws IOException, MessagingException {
-        // Upload driver photo to Cloudinary
-        String driverPhotoUrl = cloudinaryService.uploadImage(imageUrl);
+public ResponseEntity<String> createDriver(
+        @RequestParam("imageUrl") MultipartFile imageUrl,
+        @RequestParam("carImageUrls") MultipartFile[] carImageUrls,
+        @RequestParam("driverName") String driverName,
+        @RequestParam("driverEmail") String driverEmail,
+        @RequestParam("userName") String userName,
+        @RequestParam("password") String password,
+        @RequestParam("driverAddress") String driverAddress,
+        @RequestParam("driverPhone") String driverPhone,
+        @RequestParam("currentLocation") String currentLocation,
+        @RequestParam("catID") String catID,
+        @RequestParam("catType") String catType,
+        @RequestParam("catModel") String catModel,
+        @RequestParam("noOfSeats") String noOfSeats,
+        @RequestParam("driverNic") String driverNic,
+        @RequestParam("acType") String acType,
+        @RequestParam("vehicalNumber") String vehicalNumber,
+        @RequestParam("luggageType") String luggageType
+) throws IOException, MessagingException {
 
-        // Upload car photos to Cloudinary
-        List<String> carPhotoUrls = new ArrayList<>();
-        for (MultipartFile carPhoto : carImageUrls) {
-            String carPhotoUrl = cloudinaryService.uploadImage(carPhoto);
-            carPhotoUrls.add(carPhotoUrl);
+    // 🔹 Check if a driver with this email already exists
+    Driver existingDriverByEmail = service.getDriverByEmail(driverEmail);
+    if (existingDriverByEmail != null) {
+        if ("Banned".equalsIgnoreCase(existingDriverByEmail.getDriverStatues())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This email is banned. You cannot create a new account.");
         }
-
-        // Create and populate the Driver object
-        Driver driver = new Driver();
-        driver.setDriverName(driverName);
-        driver.setDriverEmail(driverEmail);
-        driver.setUserName(userName);
-        driver.setImageUrl(driverPhotoUrl);
-        driver.setPassword(passwordEncoder.encode(password));
-        driver.setDriverAddress(driverAddress);
-        driver.setDriverPhone(driverPhone);
-        driver.setDriverStatues("Pending"); // Set status to Pending
-        driver.setCurrentLocation(currentLocation);
-        driver.setCatID(catID);
-        driver.setCatType(catType);
-        driver.setCatModel(catModel);
-        driver.setNoOfSeats(noOfSeats);
-        driver.setLagguageType(luggageType);
-        driver.setCarImageUrls(carPhotoUrls);
-
-        emailService.sendThankYouEmail(driverEmail, driverName);
-        return service.createDriver(driver);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("An account with this email already exists.");
     }
+
+    // 🔹 Check if the username is already taken
+    if (service.getDriverByUsername(userName).isPresent()) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body("This username is already taken. Please choose a different one.");
+    }
+
+    // 🔹 Upload driver photo to Cloudinary
+    String driverPhotoUrl = cloudinaryService.uploadImage(imageUrl);
+
+    // 🔹 Upload car photos to Cloudinary
+    List<String> carPhotoUrls = new ArrayList<>();
+    for (MultipartFile carPhoto : carImageUrls) {
+        String carPhotoUrl = cloudinaryService.uploadImage(carPhoto);
+        carPhotoUrls.add(carPhotoUrl);
+    }
+
+    // 🔹 Create and populate the Driver object
+    Driver driver = new Driver();
+    driver.setDriverName(driverName);
+    driver.setDriverEmail(driverEmail);
+    driver.setUserName(userName);
+    driver.setImageUrl(driverPhotoUrl);
+    driver.setPassword(passwordEncoder.encode(password));
+    driver.setDriverAddress(driverAddress);
+    driver.setDriverPhone(driverPhone);
+    driver.setDriverStatues("Pending"); // Default status is Pending
+    driver.setCurrentLocation(currentLocation);
+    driver.setCatID(catID);
+    driver.setAcType(acType);
+    driver.setDriverNic(driverNic);
+    driver.setCatType(catType);
+    driver.setCatModel(catModel);
+    driver.setVehicalNumber(vehicalNumber);
+    driver.setNoOfSeats(noOfSeats);
+    driver.setLagguageType(luggageType);
+    driver.setCarImageUrls(carPhotoUrls);
+    service.createDriver(driver);
+    return ResponseEntity.ok("Driver account created successfully.");
+}
+
 
     /**
      * Approves a driver (Admin action)
@@ -158,7 +180,7 @@ public class DriverController {
     /**
      * Retrieves a driver by ID.
      */
-    @GetMapping("/driver/{driverID}")
+    @GetMapping("/auth/driver/{driverID}")
     public ResponseEntity<Driver> getDriverById(@PathVariable String driverID) {
         Driver driver = service.getDriverByID(driverID);
         return driver != null ? ResponseEntity.ok(driver) : ResponseEntity.notFound().build();
