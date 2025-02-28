@@ -117,7 +117,7 @@ function DriverProfile({ driverID }) { // Accept driverID as a prop
         // Add other fields as needed, matching your backend Driver model
       };
       
-      await axios.put(`http://localhost:8080/updateDriver/${driverID}`, updatedDriver, {
+      await axios.put("http://localhost:8080/updateDriver/${driverID}", updatedDriver, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
