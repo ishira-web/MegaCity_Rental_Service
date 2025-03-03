@@ -64,7 +64,7 @@ public class CategoryController {
     }
 
     // ✅ New Endpoint: Get all unique car types (for frontend dropdown)
-    @GetMapping("/getCarTypes")
+    @GetMapping("/auth/getCarTypes")
     public ResponseEntity<List<String>> getAllCarTypes() {
         List<String> carTypes = catService.getAllCarTypes();
         return ResponseEntity.ok(carTypes);

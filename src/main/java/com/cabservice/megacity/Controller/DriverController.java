@@ -206,4 +206,13 @@ public class DriverController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver not found.");
     }
+
+
+    // Get All Pending Drivers
+    @GetMapping("/auth/drivers/pending")
+    public ResponseEntity<List<Driver>> getPendingDrivers() {
+    List<Driver> pendingDrivers = service.getAllPendingDrivers();
+    return ResponseEntity.ok(pendingDrivers);
+}
+
 }

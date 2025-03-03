@@ -103,4 +103,11 @@ public class DriverService {
         }
         return false;
     }
+
+
+    // Get All Pending Drivers
+public List<Driver> getAllPendingDrivers() {
+    return driverRepository.findByDriverStatues("Pending");
+}
+
 }
