@@ -193,11 +193,11 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8 font-walsheim">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-sm">
         <div className="px-8 py-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold">Driver Registration</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-2xl font-bold text-center">Driver Registration</h1>
+          <p className="text-gray-600 mt-1 text-center">
             Please fill in all required information to complete your registration.
           </p>
         </div>

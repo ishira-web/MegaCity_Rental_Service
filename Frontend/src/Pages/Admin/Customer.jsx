@@ -1,31 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function Customer() {
-  const [customers, setCustomers] = useState([
-    {
-      id: 1,
-      name: 'John Doe',
-      address: '123 Main St, Colombo',
-      email: 'john@example.com',
-      phone: '0771234567',
-      city: 'Colombo',
-      nic: '987654321V',
-      photo: 'https://via.placeholder.com/50',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      address: '456 Side Rd, Kandy',
-      email: 'jane@example.com',
-      phone: '0777654321',
-      city: 'Kandy',
-      nic: '123456789V',
-      photo: 'https://via.placeholder.com/50',
-    },
-    // Add more sample customers here
-  ]);
-
+  const [customers, setCustomers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Fetch customers from backend API
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/auth/getAllCustomers');
+        setCustomers(response.data);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+    };
+
+    fetchCustomers();
+  }, []);  // Empty dependency array means this runs once when the component mounts
 
   // Filter customers based on search query
   const filteredCustomers = customers.filter(
@@ -37,8 +29,16 @@ function Customer() {
       customer.nic.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDelete = (id) => {
-    setCustomers(customers.filter((customer) => customer.id !== id));
+  // Delete customer by ID
+  const handleDelete = async (id) => {
+    try {
+      const response = await axios.delete(`http://localhost:8080/auth/deleteCustomer/${id}`);
+      if (response.status === 200) {
+        setCustomers(customers.filter((customer) => customer.customerId !== id)); // Remove deleted customer from state
+      }
+    } catch (error) {
+      console.error("Error deleting customer:", error);
+    }
   };
 
   return (
@@ -60,12 +60,9 @@ function Customer() {
         <table className="w-full bg-white rounded-lg shadow-md">
           <thead>
             <tr className="bg-gray-700 text-white">
-              <th className="p-2">Customer ID</th>
               <th className="p-2">Customer Name</th>
-              <th className="p-2">Address</th>
               <th className="p-2">Email</th>
               <th className="p-2">Phone Number</th>
-              <th className="p-2">Current City</th>
               <th className="p-2">NIC No</th>
               <th className="p-2">Customer Photo</th>
               <th className="p-2">Actions</th>
@@ -73,28 +70,22 @@ function Customer() {
           </thead>
           <tbody>
             {filteredCustomers.map((customer) => (
-              <tr key={customer.id} className="border-b hover:bg-gray-100">
-                <td className="p-2 text-center">{customer.id}</td>
+              <tr key={customer.customerId} className="border-b hover:bg-gray-100">
                 <td className="p-2 text-center">{customer.name}</td>
-                <td className="p-2 text-center">{customer.address}</td>
                 <td className="p-2 text-center">{customer.email}</td>
                 <td className="p-2 text-center">{customer.phone}</td>
-                <td className="p-2 text-center">{customer.city}</td>
-                <td className="p-2 text-center">{customer.nic}</td>
+                <td className="p-2 text-center">{customer.nicNumber}</td>
                 <td className="p-2 text-center">
                   <img
-                    src={customer.photo}
+                    src={customer.customerProfile}
                     alt="User Photo"
                     className="w-10 h-10 object-cover rounded-full mx-auto"
                   />
                 </td>
-                <td className="p-2 text-center">
-                  <button
-                    className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700"
-                    onClick={() => handleDelete(customer.id)}
-                  >
-                    Delete
-                  </button>
+                <td className=" flex  gap-5 p-2 text-center">
+                  <button className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700" onClick={() => handleDelete(customer.customerId)}>Delete</button>
+                  <button className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700">Accept</button>
+                  <button className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-700">Ban</button>
                 </td>
               </tr>
             ))}

@@ -6,6 +6,7 @@ import Driver from './Driver';
 import Customer from './Customer';
 import Admins from './Admins';
 import Bookings from './Bookings';
+import Category from './Category';
 
 function AdminHome() {
   const [selected, setSelected] = useState('');
@@ -73,6 +74,18 @@ function AdminHome() {
             </div>
           </Link>
 
+          <Link
+            to="/admin/category"
+            className={`sidebar-link ${selected === 'category' ? 'bg-[#2C3E50] py-4 px-6' : 'hover:bg-[#2C3E50] py-4 px-6 rounded-md'}`}
+            onClick={() => handleSelect('category', 'Category')}
+          >
+            <div className="flex items-center gap-6">
+              <User size={24} />
+              <span className="text-lg">Category</span>
+            </div>
+          </Link>
+          
+
           <div>
             <button className='bg-red-500 text-white px-5 rounded-md py-3'>Logout</button>
           </div>
@@ -101,6 +114,7 @@ function AdminHome() {
             <Route path="/customers" element={<Customer/>} />
             <Route path="/driver" element={<Driver />} />
             <Route path="/admins" element={<Admins/>} />
+            <Route path='/category' element = {<Category/>}/>
             <Route path="/*" element={<Dashboard/>} />
           </Routes>
         </div>

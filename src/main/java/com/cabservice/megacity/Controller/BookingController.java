@@ -1,88 +1,71 @@
 package com.cabservice.megacity.Controller;
-
-import java.util.List;
-import java.util.Optional;
+import com.cabservice.megacity.Model.Booking;
+import com.cabservice.megacity.Service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.cabservice.megacity.Model.Booking;
-import com.cabservice.megacity.Service.BookingService;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class BookingController {
-    
+
     @Autowired
     private BookingService bookingService;
 
-    /**
-     * Creates a new booking.
-     * @param booking The booking details from the request body.
-     * @return The created booking wrapped in a ResponseEntity.
-     */
+    // Create a booking
     @PostMapping("/auth/createBooking")
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
         Booking createdBooking = bookingService.createBooking(booking);
-        return ResponseEntity.ok(createdBooking);
-    }
-
-    /**
-     * Updates an existing booking.
-     * @param bookingId The ID of the booking to be updated.
-     * @param bookingDetails The updated booking details from the request body.
-     * @return The updated booking if found, otherwise returns 404 Not Found.
-     */
-
-     
-    @PutMapping("/updateBooking/{id}")
-    public ResponseEntity<Booking> updateBooking(@PathVariable("id") String bookingId, @RequestBody Booking bookingDetails) {
-        Booking updatedBooking = bookingService.updateBooking(bookingId, bookingDetails);
-        if (updatedBooking != null) {
-            return ResponseEntity.ok(updatedBooking);
+        if (createdBooking != null) {
+            return new ResponseEntity<>(createdBooking, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Driver unavailable
         }
-        return ResponseEntity.notFound().build(); // Return 404 if not found
+    }
+    
+    // Delete a booking by booking ID
+    @DeleteMapping("/delete/{bookingId}")
+    public ResponseEntity<String> deleteBooking(@PathVariable String bookingId) {
+        boolean isDeleted = bookingService.deleteBooking(bookingId);
+        if (isDeleted) {
+            return new ResponseEntity<>("Booking deleted successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Booking not found", HttpStatus.NOT_FOUND);
+        }
     }
 
-    /**
-     * Retrieves a booking by its ID.
-     * @param bookingId The ID of the booking to retrieve.
-     * @return The booking details if found, otherwise returns 404 Not Found.
-     */
-
-
-    @GetMapping("/auth/getbookignByID/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable("id") String bookingId) {
-        Optional<Booking> booking = bookingService.getBookingById(bookingId);
-        return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    // Get driver by booking ID
+    @GetMapping("/auth/driver/{bookingId}")
+    public ResponseEntity<String> getDriverByBookingId(@PathVariable String bookingId) {
+        Optional<String> driverId = bookingService.getDriverByBookingId(bookingId);
+        return driverId.map(s -> new ResponseEntity<>(s, HttpStatus.OK))
+                       .orElseGet(() -> new ResponseEntity<>("Driver not found", HttpStatus.NOT_FOUND));
     }
 
-    /**
-     * Retrieves all bookings.
-     * @return A list of all bookings.
-     */
-    @GetMapping("/auth/getAllBookings")
-    public ResponseEntity<List<Booking>> getAllBookings() {
-        List<Booking> bookings = bookingService.getAllBookings();
-        return ResponseEntity.ok(bookings);
+    // Get bookings by customer ID
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<Booking>> getBookingsByCustomerId(@PathVariable String customerId) {
+        List<Booking> bookings = bookingService.getBookingsByCustomerId(customerId);
+        if (!bookings.isEmpty()) {
+            return new ResponseEntity<>(bookings, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    /**
-     * Deletes a booking by its ID.
-     * @param bookingId The ID of the booking to delete.
-     * @return A 204 No Content response if successful.
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBooking(@PathVariable("id") String bookingId) {
-        bookingService.deleteBooking(bookingId);
-        return ResponseEntity.noContent().build(); // Return 204 No Content
+    // Confirm booking
+    @PutMapping("/auth/confirm/{bookingId}")
+    public ResponseEntity<String> confirmBooking(@PathVariable String bookingId) {
+        bookingService.confirmBooking(bookingId);
+        return new ResponseEntity<>("Booking confirmed", HttpStatus.OK);
+    }
+
+    // End trip and make driver available
+    @PutMapping("/end/{bookingId}")
+    public ResponseEntity<String> endTrip(@PathVariable String bookingId) {
+        bookingService.endTrip(bookingId);
+        return new ResponseEntity<>("Trip ended, driver is now available", HttpStatus.OK);
     }
 }

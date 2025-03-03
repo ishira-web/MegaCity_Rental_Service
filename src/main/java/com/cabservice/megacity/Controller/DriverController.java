@@ -37,75 +37,76 @@ public class DriverController {
      * Creates a new driver (Pending status by default)
      */
     @PostMapping("/auth/createDriver")
-public ResponseEntity<String> createDriver(
-        @RequestParam("imageUrl") MultipartFile imageUrl,
-        @RequestParam("carImageUrls") MultipartFile[] carImageUrls,
-        @RequestParam("driverName") String driverName,
-        @RequestParam("driverEmail") String driverEmail,
-        @RequestParam("userName") String userName,
-        @RequestParam("password") String password,
-        @RequestParam("driverAddress") String driverAddress,
-        @RequestParam("driverPhone") String driverPhone,
-        @RequestParam("currentLocation") String currentLocation,
-        @RequestParam("catID") String catID,
-        @RequestParam("catType") String catType,
-        @RequestParam("catModel") String catModel,
-        @RequestParam("noOfSeats") String noOfSeats,
-        @RequestParam("driverNic") String driverNic,
-        @RequestParam("acType") String acType,
-        @RequestParam("lagguageType") String lagguageType,
-        @RequestParam("vehicalNumber") String vehicalNumber
-) throws IOException, MessagingException {
+    public ResponseEntity<String> createDriver(
+            @RequestParam("imageUrl") MultipartFile imageUrl,
+            @RequestParam("carImageUrls") MultipartFile[] carImageUrls,
+            @RequestParam("driverName") String driverName,
+            @RequestParam("driverEmail") String driverEmail,
+            @RequestParam("userName") String userName,
+            @RequestParam("password") String password,
+            @RequestParam("driverAddress") String driverAddress,
+            @RequestParam("driverPhone") String driverPhone,
+            @RequestParam("currentLocation") String currentLocation,
+            @RequestParam("catID") String catID,
+            @RequestParam("catType") String catType,
+            @RequestParam("catModel") String catModel,
+            @RequestParam("noOfSeats") String noOfSeats,
+            @RequestParam("driverNic") String driverNic,
+            @RequestParam("acType") String acType,
+            @RequestParam("lagguageType") String lagguageType,
+            @RequestParam("vehicalNumber") String vehicalNumber
+    ) throws IOException, MessagingException {
 
-    // 🔹 Check if a driver with this email already exists
-    Driver existingDriverByEmail = service.getDriverByEmail(driverEmail);
-    if (existingDriverByEmail != null) {
-        if ("Banned".equalsIgnoreCase(existingDriverByEmail.getDriverStatues())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This email is banned. You cannot create a new account.");
+        // Check if a driver with this email already exists
+        Driver existingDriverByEmail = service.getDriverByEmail(driverEmail);
+        if (existingDriverByEmail != null) {
+            if ("Banned".equalsIgnoreCase(existingDriverByEmail.getDriverStatues())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This email is banned. You cannot create a new account.");
+            }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("An account with this email already exists.");
         }
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("An account with this email already exists.");
+
+        // Check if the username is already taken
+        if (service.getDriverByUsername(userName).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("This username is already taken. Please choose a different one.");
+        }
+
+        // Upload driver photo to Cloudinary
+        String driverPhotoUrl = cloudinaryService.uploadImage(imageUrl);
+
+        // Upload car photos to Cloudinary
+        List<String> carPhotoUrls = new ArrayList<>();
+        for (MultipartFile carPhoto : carImageUrls) {
+            String carPhotoUrl = cloudinaryService.uploadImage(carPhoto);
+            carPhotoUrls.add(carPhotoUrl);
+        }
+
+        // Create and populate the Driver object
+        Driver driver = new Driver();
+        driver.setDriverName(driverName);
+        driver.setDriverEmail(driverEmail);
+        driver.setUserName(userName);
+        driver.setImageUrl(driverPhotoUrl);
+        driver.setPassword(passwordEncoder.encode(password));
+        driver.setDriverAddress(driverAddress);
+        driver.setDriverPhone(driverPhone);
+        driver.setDriverStatues("Pending"); // Default status is Pending
+        driver.setCurrentLocation(currentLocation);
+        driver.setCatID(catID);
+        driver.setAcType(acType);
+        driver.setDriverNic(driverNic);
+        driver.setCatType(catType);
+        driver.setLagguageType(lagguageType);
+        driver.setCatModel(catModel);
+        driver.setVehicalNumber(vehicalNumber);
+        driver.setNoOfSeats(noOfSeats);
+        driver.setCarImageUrls(carPhotoUrls);
+
+        // Save driver
+        service.createDriver(driver);
+        return ResponseEntity.ok("Driver account created successfully.");
     }
-
-    // 🔹 Check if the username is already taken
-    if (service.getDriverByUsername(userName).isPresent()) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body("This username is already taken. Please choose a different one.");
-    }
-
-    // 🔹 Upload driver photo to Cloudinary
-    String driverPhotoUrl = cloudinaryService.uploadImage(imageUrl);
-
-    // 🔹 Upload car photos to Cloudinary
-    List<String> carPhotoUrls = new ArrayList<>();
-    for (MultipartFile carPhoto : carImageUrls) {
-        String carPhotoUrl = cloudinaryService.uploadImage(carPhoto);
-        carPhotoUrls.add(carPhotoUrl);
-    }
-
-    // 🔹 Create and populate the Driver object
-    Driver driver = new Driver();
-    driver.setDriverName(driverName);
-    driver.setDriverEmail(driverEmail);
-    driver.setUserName(userName);
-    driver.setImageUrl(driverPhotoUrl);
-    driver.setPassword(passwordEncoder.encode(password));
-    driver.setDriverAddress(driverAddress);
-    driver.setDriverPhone(driverPhone);
-    driver.setDriverStatues("Pending"); // Default status is Pending
-    driver.setCurrentLocation(currentLocation);
-    driver.setCatID(catID);
-    driver.setAcType(acType);
-    driver.setDriverNic(driverNic);
-    driver.setCatType(catType);
-    driver.setLagguageType(lagguageType);
-    driver.setCatModel(catModel);
-    driver.setVehicalNumber(vehicalNumber);
-    driver.setNoOfSeats(noOfSeats);
-    driver.setCarImageUrls(carPhotoUrls);
-    service.createDriver(driver);
-    return ResponseEntity.ok("Driver account created successfully.");
-}
-
 
     /**
      * Approves a driver (Admin action)
@@ -130,7 +131,6 @@ public ResponseEntity<String> createDriver(
     @DeleteMapping("/auth/declineDriver/{driverID}")
     public ResponseEntity<String> declineDriver(@PathVariable String driverID) throws MessagingException {
         Driver declinedDriver = service.getDriverByID(driverID);
-        
         if (declinedDriver != null) {
             boolean isDeleted = service.declineDriver(driverID);
             if (isDeleted) {
@@ -148,14 +148,13 @@ public ResponseEntity<String> createDriver(
     @PutMapping("/banDriver/{driverID}")
     public ResponseEntity<String> banDriver(@PathVariable String driverID) throws MessagingException {
         Driver bannedDriver = service.getDriverByID(driverID);
-        
         if (bannedDriver != null) {
             bannedDriver.setDriverStatues("Banned");
             service.updateDriver(driverID, bannedDriver);
-            
+
             // Send Ban Notification Email
             emailService.sendBanNotificationEmail(bannedDriver.getDriverEmail(), bannedDriver.getDriverName());
-            
+
             return ResponseEntity.ok("Driver has been banned successfully.");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver not found.");
@@ -169,13 +168,6 @@ public ResponseEntity<String> createDriver(
         return ResponseEntity.ok(service.getDriversByStatus("Available"));
     }
 
-    /**
-     * Retrieves all drivers.
-     */
-    @GetMapping("/getAllDriver")
-    public ResponseEntity<List<Driver>> getAllDrivers() {
-        return ResponseEntity.ok(service.getAllDrivers());
-    }
 
     /**
      * Retrieves a driver by ID.
@@ -199,21 +191,19 @@ public ResponseEntity<String> createDriver(
     }
 
     /**
- * Deletes a driver (Admin action)
- */
-@DeleteMapping("/auth/deleteDriver/{driverID}")
-public ResponseEntity<String> deleteDriver(@PathVariable String driverID) throws MessagingException {
-    Driver driver = service.getDriverByID(driverID);
-    
-    if (driver != null) {
-        boolean isDeleted = service.deleteDriver(driverID);
-        if (isDeleted) {
-            // Send Driver Deletion Email
-            emailService.sendDriverDeletionEmail(driver.getDriverEmail(), driver.getDriverName());
-            return ResponseEntity.ok("Driver has been deleted successfully.");
+     * Deletes a driver (Admin action)
+     */
+    @DeleteMapping("/auth/deleteDriver/{driverID}")
+    public ResponseEntity<String> deleteDriver(@PathVariable String driverID) throws MessagingException {
+        Driver driver = service.getDriverByID(driverID);
+        if (driver != null) {
+            boolean isDeleted = service.deleteDriver(driverID);
+            if (isDeleted) {
+                // Send Driver Deletion Email
+                emailService.sendDriverDeletionEmail(driver.getDriverEmail(), driver.getDriverName());
+                return ResponseEntity.ok("Driver has been deleted successfully.");
+            }
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver not found.");
     }
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Driver not found.");
-}
-
 }

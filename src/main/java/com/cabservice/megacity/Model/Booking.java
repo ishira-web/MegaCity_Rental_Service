@@ -1,6 +1,4 @@
 package com.cabservice.megacity.Model;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
@@ -19,10 +17,13 @@ public class Booking {
     @Id
     private String bookingId;
     private String pickupLocation;
+    private String cutomerName;
+    private String customerEmail;
     private String dropLocation;
-    private LocalDate date; // LocalDate for date
-    private LocalTime time; // LocalTime for time
+    private String bookingDate; // LocalDate for date
+    private String bookingTime; // LocalTime for time
     private String customerID;
     private String driverID;
     private String bookingStatus;
+    
 }

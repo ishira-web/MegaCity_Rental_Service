@@ -5,7 +5,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import com.cabservice.megacity.Model.Category;
 import com.cabservice.megacity.Service.CategoryService;
 
@@ -15,34 +17,56 @@ public class CategoryController {
     @Autowired
     private CategoryService catService;
 
+    // ✅ Create a new vehicle category
     @PostMapping("/auth/createcategory")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Category createCategory(@RequestBody Category category) {
-        return catService.createCategory(category);
+    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+        Category createdCategory = catService.createCategory(category);
+        return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{catID}")
-    public Category getCategoryById(@PathVariable String catID) {
-        return catService.getCategoryById(catID);
+    // ✅ Get a single category by ID
+    @GetMapping("/category/{catID}")
+    public ResponseEntity<Category> getCategoryById(@PathVariable String catID) {
+        try {
+            Category category = catService.getCategoryById(catID);
+            return ResponseEntity.ok(category);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
-    @DeleteMapping("/{catID}")
-    public String deleteCategory(@PathVariable String catID) {
-        return catService.deleteCategory(catID);
+    @DeleteMapping("/auth/{catID}") // Change from "/category/{catID}"
+    public ResponseEntity<String> deleteCategory(@PathVariable String catID) {
+        try {
+            String message = catService.deleteCategory(catID);
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category not found.");
+        }
     }
+    
 
-    // Example in Java (Spring Boot)
+    // ✅ Get all vehicle categories
     @GetMapping("/auth/getAllCategories")
-    public List<Category> getAllCategories() {
-    return catService.getAllCategories()
-                     .stream()
-                     .distinct() // Ensure unique categories
-                     .collect(Collectors.toList());
-     }
+    public ResponseEntity<List<Category>> getAllCategories() {
+        List<Category> categories = catService.getAllCategories()
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(categories);
+    }
 
-     
-    @GetMapping("auth/catModels/{catType}")
-    public List<Category> getCatModelsByCatType(@PathVariable String catType) {
-        return catService.getCatModelsByCatType(catType);
+    // ✅ Get all vehicle models by category type
+    @GetMapping("/auth/catModels/{catType}")
+    public ResponseEntity<List<Category>> getCatModelsByCatType(@PathVariable String catType) {
+        List<Category> categories = catService.getCatModelsByCatType(catType);
+        return ResponseEntity.ok(categories);
+    }
+
+    // ✅ New Endpoint: Get all unique car types (for frontend dropdown)
+    @GetMapping("/getCarTypes")
+    public ResponseEntity<List<String>> getAllCarTypes() {
+        List<String> carTypes = catService.getAllCarTypes();
+        return ResponseEntity.ok(carTypes);
     }
 }
