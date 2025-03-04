@@ -14,10 +14,6 @@ public class DriverService {
     @Autowired
     private DriverRepository driverRepository;
 
-    // Get Driver by ID
-    public Driver getDriverByID(String driverID) {
-        return driverRepository.findById(driverID).orElse(null);
-    }
 
     // Get Driver by Email
     public Driver getDriverByEmail(String driverEmail) {
@@ -87,7 +83,7 @@ public class DriverService {
             driver.setAcType(updatedDriver.getAcType());
             driver.setLagguageType(updatedDriver.getLagguageType());
             driver.setNoOfSeats(updatedDriver.getNoOfSeats());
-            driver.setCarImageUrls(updatedDriver.getCarImageUrls());
+            driver.setCarImageUrl(updatedDriver.getCarImageUrl());
             driverRepository.save(driver);
             return driver;
         }
@@ -108,6 +104,17 @@ public class DriverService {
     // Get All Pending Drivers
 public List<Driver> getAllPendingDrivers() {
     return driverRepository.findByDriverStatues("Pending");
+}
+
+
+// Get Driver by ID
+public Driver getDriverByID(String driverID) {
+    return driverRepository.findById(driverID).orElse(null);
+}
+
+
+public Driver findByEmail(String driverEmail){
+    return driverRepository.findByEmail(driverEmail);
 }
 
 }

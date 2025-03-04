@@ -7,6 +7,7 @@ import Customer from './Customer';
 import Admins from './Admins';
 import Bookings from './Bookings';
 import Category from './Category';
+import PendingDriver from './PendingDriver';
 
 function AdminHome() {
   const [selected, setSelected] = useState('');
@@ -115,6 +116,7 @@ function AdminHome() {
             <Route path="/driver" element={<Driver />} />
             <Route path="/admins" element={<Admins/>} />
             <Route path='/category' element = {<Category/>}/>
+            <Route path='/pending' element = {<PendingDriver/>}/>
             <Route path="/*" element={<Dashboard/>} />
           </Routes>
         </div>

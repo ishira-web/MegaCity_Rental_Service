@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Camera, CheckCircle } from "lucide-react";
+import { Camera } from "lucide-react";
 
 function DriverRegister() {
   const [formData, setFormData] = useState({
@@ -21,41 +21,40 @@ function DriverRegister() {
   });
 
   const [imageUrl, setImageUrl] = useState(null);
-  const [carImageUrls, setCarImageUrls] = useState({
-    frontView: null,
-    sideView: null,
-    backView: null
-  });
+  const [carImageUrl, setCarImageUrl] = useState(null); // Single car image state
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [catTypes, setCatTypes] = useState([]);
-   const [catModels, setCatModels] = useState([]);
-    const [loadingCategories, setLoadingCategories] = useState(false);
+  const [catModels, setCatModels] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [carImagePreview, setCarImagePreview] = useState(null);
 
-useEffect(() => {
-  const fetchCategories = async () => {
-    setLoadingCategories(true);
-    try {
-      const response = await fetch("http://localhost:8080/auth/getAllCategories");
-      const data = await response.json();
-      
-      // Filter unique catTypes
-      const uniqueCatTypes = Array.from(
-        new Set(data.map(category => category.catType))
-      ).map(catType => {
-        // Return the first occurrence of each catType with its catID
-        return data.find(category => category.catType === catType);
-      });
-      
-      setCatTypes(uniqueCatTypes); // Set only unique category types
-    } catch (err) {
-      setError("Failed to load vehicle categories");
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
-  fetchCategories();
-}, []);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      try {
+        const response = await fetch("http://localhost:8080/auth/getAllCategories");
+        const data = await response.json();
+
+        // Filter unique catTypes
+        const uniqueCatTypes = Array.from(
+          new Set(data.map(category => category.catType))
+        ).map(catType => {
+          // Return the first occurrence of each catType with its catID
+          return data.find(category => category.catType === catType);
+        });
+
+        setCatTypes(uniqueCatTypes); // Set only unique category types
+      } catch (err) {
+        setError("Failed to load vehicle categories");
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const fetchCatModels = async (catType) => {
     try {
       const response = await fetch(`http://localhost:8080/auth/catModels/${catType}`);
@@ -76,8 +75,8 @@ useEffect(() => {
 
   const handleCatTypeChange = (e) => {
     const { value } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
+    setFormData(prev => ({
+      ...prev,
       catType: value,
       catModel: "",
       noOfSeats: "",
@@ -92,7 +91,7 @@ useEffect(() => {
   const handleCatModelChange = (e) => {
     const { value } = e.target;
     const selectedModel = catModels.find(model => model.catModel === value);
-    
+
     setFormData(prev => ({
       ...prev,
       catModel: value,
@@ -104,14 +103,17 @@ useEffect(() => {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    if (name === "imageUrl") {
-      setImageUrl(files[0]);
-    } else if (name === "frontView") {
-      setCarImageUrls(prev => ({ ...prev, frontView: files[0] }));
-    } else if (name === "sideView") {
-      setCarImageUrls(prev => ({ ...prev, sideView: files[0] }));
-    } else if (name === "backView") {
-      setCarImageUrls(prev => ({ ...prev, backView: files[0] }));
+    if (files.length > 0) {
+      const file = files[0];
+      const imageUrl = URL.createObjectURL(file);
+
+      if (name === "imageUrl") {
+        setImageUrl(file);
+        setImagePreview(imageUrl);
+      } else if (name === "frontView") {
+        setCarImageUrl(file); // Set single car image
+        setCarImagePreview(imageUrl);
+      }
     }
   };
 
@@ -120,7 +122,7 @@ useEffect(() => {
     setLoading(true);
     setError(null);
 
-    if (!imageUrl || !carImageUrls.frontView || !carImageUrls.sideView || !carImageUrls.backView) {
+    if (!imageUrl || !carImageUrl) { // Check for single car image
       setError("Please upload all required images");
       setLoading(false);
       return;
@@ -135,9 +137,7 @@ useEffect(() => {
     try {
       const data = new FormData();
       data.append("imageUrl", imageUrl);
-      data.append("carImageUrls", carImageUrls.frontView);
-      data.append("carImageUrls", carImageUrls.sideView);
-      data.append("carImageUrls", carImageUrls.backView);
+      data.append("carImageUrl", carImageUrl); // Append single car image
       data.append("driverName", formData.driverName);
       data.append("driverEmail", formData.driverEmail);
       data.append("userName", formData.userName);
@@ -164,7 +164,7 @@ useEffect(() => {
         throw new Error(result || "Failed to create driver");
       }
 
-      alert("Driver account created successfully!");
+      alert("Driver account created successfully! Please Be wait for Admin Approval");
       setFormData({
         driverName: "",
         driverEmail: "",
@@ -183,7 +183,7 @@ useEffect(() => {
         vehicalNumber: "",
       });
       setImageUrl(null);
-      setCarImageUrls({ frontView: null, sideView: null, backView: null });
+      setCarImageUrl(null); // Reset single car image
       setCatModels([]);
     } catch (err) {
       setError(err.message);
@@ -244,15 +244,17 @@ useEffect(() => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                   <div className="space-y-1 text-center">
-                    <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Profile Preview" className="h-24 w-24 object-cover rounded-full mx-auto" />
+                    ) : (
+                      <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                    )}
                     <div className="flex text-sm text-gray-600">
                       <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
                         <span>Upload a file</span>
                         <input type="file" name="imageUrl" onChange={handleFileChange} className="sr-only" accept="image/*" required />
                       </label>
-                      <p className="pl-1">or drag and drop</p>
                     </div>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
                   </div>
                 </div>
               </div>
@@ -342,44 +344,21 @@ useEffect(() => {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Front View</label>
+              <div className="flex justify-center ">
+                {/* Vehicle Front View Upload */}
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700">Vehicle Front View</label>
                   <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
                     <div className="space-y-1 text-center">
-                      <Camera className="mx-auto h-8 w-8 text-gray-400" />
-                      <div className="text-sm text-gray-600">
+                      {carImagePreview ? (
+                        <img src={carImagePreview} alt="Car Front View Preview" className="h-24 w-24 object-cover rounded-lg mx-auto" />
+                      ) : (
+                        <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                      )}
+                      <div className="flex text-sm text-gray-600">
                         <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
-                          <span>Upload front view</span>
+                          <span>Upload a file</span>
                           <input type="file" name="frontView" onChange={handleFileChange} className="sr-only" accept="image/*" required />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Side View</label>
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                    <div className="space-y-1 text-center">
-                      <Camera className="mx-auto h-8 w-8 text-gray-400" />
-                      <div className="text-sm text-gray-600">
-                        <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
-                          <span>Upload side view</span>
-                          <input type="file" name="sideView" onChange={handleFileChange} className="sr-only" accept="image/*" required />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Back View</label>
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                    <div className="space-y-1 text-center">
-                      <Camera className="mx-auto h-8 w-8 text-gray-400" />
-                      <div className="text-sm text-gray-600">
-                        <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
-                          <span>Upload back view</span>
-                          <input type="file" name="backView" onChange={handleFileChange} className="sr-only" accept="image/*" required />
                         </label>
                       </div>
                     </div>

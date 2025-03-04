@@ -206,15 +206,16 @@ public class CustomerController {
  
      // Step 3: Reset Password
      @PostMapping("/reset-password")
-     public String resetPassword(@RequestParam String email, @RequestParam String newPassword) {
-         Optional<Customer> userOptional = customerRepository.findByEmail(email);
-         if (userOptional.isPresent()) {
-             Customer user = userOptional.get();
-             user.setPassword(newPassword);
-             user.setOtp(null); // Clear OTP after successful password reset
-             customerRepository.save(user);
-             return "Password reset successfully!";
-         }
-         return "User not found!";
-     }
+        public String resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+        Optional<Customer> userOptional = customerRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+        Customer user = userOptional.get();
+        user.setPassword(passwordEncoder.encode(newPassword)); // Encode the new password
+        user.setOtp(null); // Clear OTP after successful password reset
+        customerRepository.save(user);
+        return "Password reset successfully!";
+    }
+    return "User not found!";
+}
+
 }

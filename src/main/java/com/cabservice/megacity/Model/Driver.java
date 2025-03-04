@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+
 
 @Document(collection = "Driver")
 @Getter
@@ -35,7 +35,7 @@ public class Driver {
     private String noOfSeats;
     private String acType;
     private String lagguageType;
-    private List<String> carImageUrls; // List of car photo URLs
+    private String carImageUrl; // List of car photo URLs
    
     
     

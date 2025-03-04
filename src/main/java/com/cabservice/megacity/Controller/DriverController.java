@@ -1,7 +1,6 @@
 package com.cabservice.megacity.Controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.cabservice.megacity.Service.EmailService;
@@ -39,7 +38,7 @@ public class DriverController {
     @PostMapping("/auth/createDriver")
     public ResponseEntity<String> createDriver(
             @RequestParam("imageUrl") MultipartFile imageUrl,
-            @RequestParam("carImageUrls") MultipartFile[] carImageUrls,
+            @RequestParam("carImageUrl") MultipartFile carImageUrl, // Change here
             @RequestParam("driverName") String driverName,
             @RequestParam("driverEmail") String driverEmail,
             @RequestParam("userName") String userName,
@@ -75,12 +74,8 @@ public class DriverController {
         // Upload driver photo to Cloudinary
         String driverPhotoUrl = cloudinaryService.uploadImage(imageUrl);
 
-        // Upload car photos to Cloudinary
-        List<String> carPhotoUrls = new ArrayList<>();
-        for (MultipartFile carPhoto : carImageUrls) {
-            String carPhotoUrl = cloudinaryService.uploadImage(carPhoto);
-            carPhotoUrls.add(carPhotoUrl);
-        }
+        // Upload car photo to Cloudinary (only one image)
+        String carPhotoUrl = cloudinaryService.uploadImage(carImageUrl);
 
         // Create and populate the Driver object
         Driver driver = new Driver();
@@ -100,13 +95,13 @@ public class DriverController {
         driver.setLagguageType(lagguageType);
         driver.setCatModel(catModel);
         driver.setVehicalNumber(vehicalNumber);
-        driver.setNoOfSeats(noOfSeats);
-        driver.setCarImageUrls(carPhotoUrls);
+        driver.setCarImageUrl(carPhotoUrl); // Change here to set a single URL
 
         // Save driver
         service.createDriver(driver);
         return ResponseEntity.ok("Driver account created successfully.");
     }
+
 
     /**
      * Approves a driver (Admin action)
@@ -169,14 +164,6 @@ public class DriverController {
     }
 
 
-    /**
-     * Retrieves a driver by ID.
-     */
-    @GetMapping("/auth/driver/{driverID}")
-    public ResponseEntity<Driver> getDriverById(@PathVariable String driverID) {
-        Driver driver = service.getDriverByID(driverID);
-        return driver != null ? ResponseEntity.ok(driver) : ResponseEntity.notFound().build();
-    }
 
     /**
      * Updates a driver.
@@ -214,5 +201,15 @@ public class DriverController {
     List<Driver> pendingDrivers = service.getAllPendingDrivers();
     return ResponseEntity.ok(pendingDrivers);
 }
+
+
+@GetMapping("/auth/driver/{driverID}")
+public ResponseEntity<Driver> getDriverById(@PathVariable String driverID) {
+    Driver driver = service.getDriverByID(driverID);
+    return driver != null ? ResponseEntity.ok(driver) : ResponseEntity.notFound().build();
+}
+
+
+
 
 }

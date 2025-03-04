@@ -16,7 +16,7 @@ function Layout() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
-    }, 10000); // Matches the loader duration
+    }, 5000); // Matches the loader duration
 
     return () => clearTimeout(timer);
   }, []);
@@ -33,6 +33,7 @@ function Layout() {
         <Safety />
         <Faq />
         <Footer />
+        <Outlet/>
       </div>
     </>
   );
