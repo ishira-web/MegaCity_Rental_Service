@@ -83,9 +83,7 @@ function Customer() {
                   />
                 </td>
                 <td className=" flex  gap-5 p-2 text-center">
-                  <button className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700" onClick={() => handleDelete(customer.customerId)}>Delete</button>
-                  <button className="bg-green-500 text-white px-4 py-1 rounded hover:bg-green-700">Accept</button>
-                  <button className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-700">Ban</button>
+                  <button className="bg-red-500 text-white px-4 py-1 rounded  hover:bg-red-700" onClick={() => handleDelete(customer.customerId)}>Delete</button>
                 </td>
               </tr>
             ))}

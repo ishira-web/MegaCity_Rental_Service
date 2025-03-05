@@ -116,7 +116,7 @@ function AdminHome() {
             <Route path="/driver" element={<Driver />} />
             <Route path="/admins" element={<Admins/>} />
             <Route path='/category' element = {<Category/>}/>
-            <Route path='/pending' element = {<PendingDriver/>}/>
+            <Route path='/pending/:driverID' element = {<PendingDriver/>}/>
             <Route path="/*" element={<Dashboard/>} />
           </Routes>
         </div>

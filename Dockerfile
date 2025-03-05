@@ -12,3 +12,5 @@ EXPOSE 8080
 
 # Run the jar file when the container starts
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
+

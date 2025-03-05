@@ -158,7 +158,7 @@ public class DriverController {
     /**
      * Retrieves all available drivers.
      */
-    @GetMapping("/availableDrivers")
+    @GetMapping("/auth/availableDrivers")
     public ResponseEntity<List<Driver>> getAvailableDrivers() {
         return ResponseEntity.ok(service.getDriversByStatus("Available"));
     }
@@ -210,6 +210,15 @@ public ResponseEntity<Driver> getDriverById(@PathVariable String driverID) {
 }
 
 
+      // DriverController.java
 
-
+@GetMapping("/auth/drivers/pending/{driverID}")
+public ResponseEntity<Driver> getPendingDriverById(@PathVariable String driverID) {
+    Driver driver = service.getPendingDriverById(driverID);
+    if (driver != null) {
+        return ResponseEntity.ok(driver);
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+}
 }

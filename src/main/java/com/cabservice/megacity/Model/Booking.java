@@ -25,5 +25,6 @@ public class Booking {
     private String customerID;
     private String driverID;
     private String bookingStatus;
+    private String driverStatues;
     
 }

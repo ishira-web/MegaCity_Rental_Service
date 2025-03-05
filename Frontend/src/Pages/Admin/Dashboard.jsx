@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Ban, Plus, Check, User } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 function Dashboard() {
   const [carTypes, setCarTypes] = useState([]);
@@ -11,25 +12,45 @@ function Dashboard() {
   const [seats, setSeats] = useState("");
   const [luggage, setLuggage] = useState("");
   const [price, setPrice] = useState("");
-  const [drivers, setDrivers] = useState([]);
+  const [drivers, setDrivers] = useState([""]);
 
+  // Validation messages
+  const [vehicleModelError, setVehicleModelError] = useState("");
+  const [seatsError, setSeatsError] = useState("");
+  const [luggageError, setLuggageError] = useState("");
+  const [priceError, setPriceError] = useState("");
+  const [carTypeError, setCarTypeError] = useState("");
 
-   // 👨‍✈️ Fetch pending drivers from API
-   useEffect(() => {
+  // Fetch pending drivers
+  useEffect(() => {
     const fetchPendingDrivers = async () => {
       try {
         const response = await fetch(`http://localhost:8080/auth/drivers/pending`);
         if (!response.ok) throw new Error("Failed to fetch pending drivers");
         const data = await response.json();
+
+        // Check if new drivers are added compared to the previous state
+        if (data.length > drivers.length) {
+          const newDrivers = data.slice(drivers.length);
+          newDrivers.forEach((driver) => showDriverNotification(driver));
+        }
+
         setDrivers(data);
       } catch (error) {
         toast.error("Failed to load pending drivers");
+        console.error("Error fetching pending drivers:", error);
       }
     };
-    fetchPendingDrivers();
-  }, []); 
 
-  // 🚗 Fetch car types from API
+    fetchPendingDrivers();
+
+    // Poll for new pending drivers every 10 seconds
+    const interval = setInterval(fetchPendingDrivers, 10000);
+
+    return () => clearInterval(interval);
+  }, [drivers]);
+
+  // Fetch car types from API
   useEffect(() => {
     const fetchCarTypes = async () => {
       try {
@@ -46,12 +67,12 @@ function Dashboard() {
     fetchCarTypes();
   }, []);
 
-  // 🔔 Show notification when a new driver is added
+  // Show notification when a new driver is added
   const showDriverNotification = (driver) => {
     toast.custom(
       (t) => (
         <div
-          className={`bg-white p-3 shadow-md border-l-4 border-blue-500 rounded-md flex items-center gap-3 ${
+          className={`bg-white p-3 shadow-md border-l-8 border-blue-800 rounded-md flex items-center gap-3 ${
             t.visible ? "animate-slide-in-right" : "animate-slide-out-right"
           }`}
         >
@@ -60,7 +81,7 @@ function Dashboard() {
           </div>
           <div>
             <h1 className="font-semibold">{driver.driverName}</h1>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 font-roboto font-semibold tracking-wide">
               You have a new driver! Check the pending list.
             </p>
           </div>
@@ -70,9 +91,9 @@ function Dashboard() {
     );
   };
 
-  // 🆕 Simulate new driver appearing after 5 seconds
+  // Simulate new driver appearing after 5 seconds
   useEffect(() => {
-    const newDriver = {}
+    const newDriver = {};
 
     const timeout = setTimeout(() => {
       setDrivers((prev) => [...prev, newDriver]);
@@ -82,7 +103,7 @@ function Dashboard() {
     return () => clearTimeout(timeout);
   }, []);
 
-  // ➕ Add a new car type to the dropdown
+  // Add a new car type to the dropdown
   const addCarType = () => {
     if (newCarType && !carTypes.includes(newCarType)) {
       setCarTypes([...carTypes, newCarType]);
@@ -90,10 +111,58 @@ function Dashboard() {
     }
   };
 
-  // ✅ Add new vehicle category
+  // Add new vehicle category
   const handleAddCategory = async () => {
-    if (!vehicleModel || !seats || !luggage || !price || !selectedCarType) {
-      toast.error("Please fill in all the fields.");
+    let isValid = true;
+
+    // Validate selected car type
+    if (!selectedCarType) {
+      setCarTypeError("Please select a car type.");
+      isValid = false;
+    } else {
+      setCarTypeError("");
+    }
+
+    // Validate vehicle model
+    if (!vehicleModel) {
+      setVehicleModelError("Please enter a vehicle model.");
+      isValid = false;
+    } else {
+      setVehicleModelError("");
+    }
+
+    // Validate seats
+    if (!seats) {
+      setSeatsError("Please enter the number of seats.");
+      isValid = false;
+    } else if (seats < 1) {
+      setSeatsError("Number of seats must be at least 1.");
+      isValid = false;
+    } else {
+      setSeatsError("");
+    }
+
+    // Validate luggage type
+    if (!luggage) {
+      setLuggageError("Please select a luggage type.");
+      isValid = false;
+    } else {
+      setLuggageError("");
+    }
+
+    // Validate price
+    if (!price) {
+      setPriceError("Please enter the price per KM.");
+      isValid = false;
+    } else if (price < 0) {
+      setPriceError("Price per KM must be a positive number.");
+      isValid = false;
+    } else {
+      setPriceError("");
+    }
+
+    // If any validation fails, stop submission
+    if (!isValid) {
       return;
     }
 
@@ -150,14 +219,15 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
       {/* 🚘 Driver Approval Section */}
       <div className="flex justify-between">
-      <div className="w-[30vw] h-[32vw] bg-white p-5 overflow-y-auto">
-        <h1 className="text-center font-semibold text-lg">Pending Drivers</h1>
-        <div className="mt-6 space-y-4">
-          {drivers.length > 0 ? (
-            drivers.map((driver, index) => (
-              <div key={index} className="border-t border-b h-14 flex justify-between items-center p-2">
+        <div className="w-[30vw] h-[32vw] bg-white p-5 overflow-y-auto">
+          <h1 className="text-center font-semibold text-lg">Pending Drivers</h1>
+          <div className="mt-6 space-y-4">
+            {drivers.length > 0 ? (
+              drivers.map((driver, index) => (
+                <div key={index} className="border-t border-b h-14 flex justify-between items-center p-2">
                 <img
                   src={driver.imageUrl}
                   alt={driver.driverName}
@@ -167,14 +237,21 @@ function Dashboard() {
                 <div className="border-2 rounded-3xl px-2 font-semibold bg-orange-100 border-orange-200">
                   <h1 className="text-sm">{driver.driverStatues}</h1>
                 </div>
-                <button className="bg-blue-500 text-white px-2 py-1 rounded-md">View</button>
+                <Link 
+                  to={`/admin/pending/${driver.driverID}`} 
+                  className="block"
+                >
+                  <button className="bg-blue-500 text-white px-2 py-1 rounded-md">
+                    View
+                  </button>
+                </Link>
               </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500">No pending drivers</p>
-          )}
+              ))
+            ) : (
+              <p className="text-center text-gray-500">No pending drivers</p>
+            )}
+          </div>
         </div>
-      </div>
 
         {/* 🚕 Manage Vehicle Categories */}
         <div className="border w-[30vw] h-[31vw] p-5 shadow-md bg-white">
@@ -196,6 +273,7 @@ function Dashboard() {
               </option>
             ))}
           </select>
+          {carTypeError && <p className="text-red-500 text-sm">{carTypeError}</p>}
 
           {/* Add New Car Type */}
           <div className="flex mt-2 gap-2">
@@ -217,15 +295,50 @@ function Dashboard() {
           {/* 🚗 Vehicle Category Form */}
           {selectedCarType && (
             <div className="mt-4 space-y-3">
-              <input type="text" className="w-full border p-2 rounded-md" placeholder="Vehicle Model" value={vehicleModel} onChange={(e) => setVehicleModel(e.target.value)} />
-              <input type="number" className="w-full border p-2 rounded-md" placeholder="No. of Seats" value={seats} onChange={(e) => setSeats(e.target.value)} />
-              <select className="w-full border p-2 rounded-md" value={luggage} onChange={(e) => setLuggage(e.target.value)}>
+              <input
+                type="text"
+                className="w-full border p-2 rounded-md"
+                placeholder="Vehicle Model"
+                value={vehicleModel}
+                onChange={(e) => setVehicleModel(e.target.value)}
+              />
+              {vehicleModelError && <p className="text-red-500 text-sm">{vehicleModelError}</p>}
+
+              <input
+                type="number"
+                className="w-full border p-2 rounded-md"
+                placeholder="No. of Seats"
+                value={seats}
+                onChange={(e) => setSeats(e.target.value)}
+              />
+              {seatsError && <p className="text-red-500 text-sm">{seatsError}</p>}
+
+              <select
+                className="w-full border p-2 rounded-md"
+                value={luggage}
+                onChange={(e) => setLuggage(e.target.value)}
+              >
                 <option value="">Select Luggage Type</option>
                 <option value="Small">Small</option>
                 <option value="Medium">Medium</option>
                 <option value="Large">Large</option>
               </select>
-              <button className="bg-blue-600 text-white p-2 rounded-md w-full mt-3 flex items-center justify-center gap-2" onClick={handleAddCategory} disabled={isSubmitting}>
+              {luggageError && <p className="text-red-500 text-sm">{luggageError}</p>}
+
+              <input
+                type="number"
+                className="w-full border p-2 rounded-md"
+                placeholder="Price for KM"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+              {priceError && <p className="text-red-500 text-sm">{priceError}</p>}
+
+              <button
+                className="bg-blue-600 text-white p-2 rounded-md w-full mt-3 flex items-center justify-center gap-2"
+                onClick={handleAddCategory}
+                disabled={isSubmitting}
+              >
                 <Check size={18} /> Add Vehicle Category
               </button>
             </div>

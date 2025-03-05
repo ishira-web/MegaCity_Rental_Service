@@ -113,8 +113,14 @@ public Driver getDriverByID(String driverID) {
 }
 
 
-public Driver findByEmail(String driverEmail){
-    return driverRepository.findByEmail(driverEmail);
+// DriverService.java
+
+public Driver getPendingDriverById(String driverID) {
+    Driver driver = getDriverByID(driverID);
+    if (driver != null && "Pending".equalsIgnoreCase(driver.getDriverStatues())) {
+        return driver;
+    }
+    return null;
 }
 
 }

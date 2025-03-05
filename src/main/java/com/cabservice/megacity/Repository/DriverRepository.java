@@ -12,6 +12,4 @@ public interface DriverRepository extends MongoRepository<Driver, String> {
     List<Driver> findByCatID(String catID);
     List<Driver> findByDriverStatues(String status);
     Driver findByDriverEmail(String email);
-    Driver findByEmail(String driverEmail);
-    
 }
