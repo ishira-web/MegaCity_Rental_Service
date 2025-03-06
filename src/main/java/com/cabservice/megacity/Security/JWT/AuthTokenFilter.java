@@ -3,9 +3,7 @@ import java.io.IOException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import com.cabservice.megacity.Security.UserDetailsServiceImpl;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import jakarta.servlet.FilterChain;
@@ -27,7 +25,7 @@ public class AuthTokenFilter  extends OncePerRequestFilter{
 
         String authHeader = request.getHeader("Authorization");
 
-        if(StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+        if(StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer")) {
 
             return authHeader.substring(7);
     
@@ -66,3 +64,4 @@ public class AuthTokenFilter  extends OncePerRequestFilter{
         filterChain.doFilter(request, response);
     }
 }
+

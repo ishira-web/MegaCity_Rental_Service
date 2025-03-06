@@ -18,6 +18,7 @@ import LoginPage from './Pages/Login/LoginPage'
 import Unauthorized from './Pages/Components/Unauthorized'
 import Signup from './Pages/Login/Register'
 import PasswordReset from './Pages/Login/PasswordReset'
+import Receipt from './Pages/Components/Reciept'
 
 
 
@@ -29,7 +30,7 @@ function App() {
      <Route path='/ride' element = {<RideLayout/>}/>
      <Route path='/about' element ={<AboutLayout/>}/>
      <Route path='/login' element = {<LoginPage/>}/>
-     <Route path='/user-profile' element = {<UserProfile/>}/>
+     <Route path='/user-profile/:id' element = {<UserProfile/>}/>
      <Route path='/sign-up' element ={<Register/>}/>
      <Route path='/blog' element = {<BlogLayout/>}/>
      <Route path='/driver-profile/:id' element = {<PrivateRoute><DriverProfile/></PrivateRoute>}/>
@@ -41,6 +42,7 @@ function App() {
      <Route path='/unauthorize' element ={<Unauthorized/>}/>
      <Route path='/signup'  element ={<Signup/>}/>
      <Route path='/password-reset' element ={<PasswordReset/>}/>
+     <Route path='/reciept' element = {<Receipt/>}/>
    </Routes>
    </AuthProvider>
   )

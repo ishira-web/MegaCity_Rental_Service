@@ -49,7 +49,7 @@ public class JwtUtils {
         .findFirst()
         .map(GrantedAuthority::getAuthority)
         .orElse("USER");
-
+    
     // Fetch the user from the database to get the ID
     String userId = null;
     
@@ -77,6 +77,7 @@ public class JwtUtils {
 }
 
 
+
     public boolean validateJwtToken(String token){
 
           try {
@@ -92,7 +93,6 @@ public class JwtUtils {
     }
 
 
-    
 
     public String getUsernameFromJwtToken(String token){
 
