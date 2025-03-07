@@ -34,6 +34,7 @@ const BookingForm = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [customerId, setCustomerId] = useState("");
+  const userId = localStorage.getItem("userId");
 
   const GEOAPIFY_API_KEY = '460ea466ca2e404db2e0eb72820f109b'; // Replace with your Geoapify API key
   const sriLankaBounds = {
@@ -43,16 +44,7 @@ const BookingForm = () => {
     lat2: 9.9
   };
 
-  // Fetch customerId from localStorage on mount
-  useEffect(() => {
-    const customerIdFromStorage = localStorage.getItem('userid');
-    console.log('Retrieved customerId from localStorage:', customerIdFromStorage);
-    if (customerIdFromStorage) {
-      setCustomerId(customerIdFromStorage);
-    } else {
-      setError("Customer ID not found. Please log in again.");
-    }
-  }, []);
+
 
   // Fetch driver details
   useEffect(() => {
@@ -192,7 +184,7 @@ const BookingForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('Submitting with customerId:', customerId);
+    console.log('Submitting with customerId:', userId);
 
     const now = new Date();
     const selectedDateTime = new Date(`${bookingDate}T${bookingTime}`);
@@ -202,7 +194,7 @@ const BookingForm = () => {
       return;
     }
 
-    if (!customerId) {
+    if (!userId) {
       setError("Customer ID is missing. Please log in again.");
       return;
     }
@@ -234,7 +226,7 @@ const BookingForm = () => {
       customerName: name,
       customerPhone: phone,
       customerEmail: email,
-      customerId: customerId
+      customerId: userId
     };
 
     console.log('Booking Data:', bookingData);
@@ -353,12 +345,9 @@ const BookingForm = () => {
               <p><strong>Driver Email:</strong> {driver.driverEmail}</p>
               <p><strong>Car Type:</strong> {driver.catType}</p>
               <p><strong>Car Model:</strong> {driver.catModel}</p>
+              <p><strong>Customer ID :</strong>{userId}</p>
             </div>
           )}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Customer ID</label>
-            <p>{customerId || "Not logged in"}</p>
-          </div>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Name</label>
             <input
@@ -461,7 +450,6 @@ const BookingForm = () => {
           </div>
           <button
             onClick={handleSubmit}
-            disabled={loading || !customerId}
             className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
           >
             {loading ? "Processing..." : "Confirm Booking"}

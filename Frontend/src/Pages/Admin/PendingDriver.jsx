@@ -48,7 +48,7 @@ function PendingDriver() {
       // Check if driver is successfully registered
       if (approvedDriver.driverStatues === "Available") {
         toast.success("Driver Registered Successfully!");
-        navigate('/*'); // Redirect to dashboard
+        navigate('/admin/*'); // Redirect to dashboard
       } else {
         toast.error("Driver approval failed");
       }
@@ -151,7 +151,7 @@ function PendingDriver() {
             <img
               src={driver.carImageUrl}
               alt="Vehicle"
-              className="w-full h-60 object-cover rounded-lg border"
+              className="w-full h-80 object-cover rounded-lg border"
             />
           </div>
           <div>

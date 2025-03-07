@@ -13,6 +13,7 @@ function NavbarUser() {
   const profileIconRef = useRef(null); // Ref for the profile icon
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
 
   // GSAP animation for mobile menu
   useEffect(() => {
@@ -89,10 +90,10 @@ function NavbarUser() {
               onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the popup
             >
               <ul>
-                {user.role === 'ROLE_DRIVER' ? (
+                {userId.role === 'ROLE_DRIVER' ? (
                   <li>
                     <Link
-                      to="/admin"
+                      to="/driver-profile/:id"
                       className="block px-4 py-2 text-black font-semibold hover:bg-slate-200"
                     >
                       Driver

@@ -27,7 +27,7 @@ function App() {
         <Route path="/ride" element={<RideLayout />} />
         <Route path="/about" element={<AboutLayout />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/user-profile/:id" element={<UserProfile />} />
+        <Route path="/user-profile/:id" element={<PrivateRoute><UserProfile/></PrivateRoute> } />
         <Route path="/sign-up" element={<Register />} />
         <Route path="/blog" element={<BlogLayout />} />
         <Route
