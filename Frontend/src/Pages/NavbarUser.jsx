@@ -7,7 +7,7 @@ import { useAuth } from '../../src/Pages/Login/AuthContext';
 
 function NavbarUser() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false); // State for popup menu
   const menuRef = useRef(null);
   const profileMenuRef = useRef(null);
   const profileIconRef = useRef(null); // Ref for the profile icon
@@ -23,15 +23,6 @@ function NavbarUser() {
     }
   }, [menuOpen]);
 
-  // GSAP animation for profile menu
-  useEffect(() => {
-    if (profileMenuOpen) {
-      gsap.to(profileMenuRef.current, { opacity: 1, duration: 0.3, ease: 'power3.out', display: 'block' });
-    } else {
-      gsap.to(profileMenuRef.current, { opacity: 0, duration: 0.3, ease: 'power3.out', display: 'none' });
-    }
-  }, [profileMenuOpen]);
-
   // Handle clicks outside the profile menu to close it
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -41,7 +32,7 @@ function NavbarUser() {
         profileIconRef.current &&
         !profileIconRef.current.contains(e.target)
       ) {
-        setProfileMenuOpen(false);
+        setIsPopupOpen(false); // Close the popup menu
       }
     };
 
@@ -55,13 +46,13 @@ function NavbarUser() {
   const handleLogout = () => {
     logout();
     navigate('/');
-    setProfileMenuOpen(false); // Close the profile menu after logout
+    setIsPopupOpen(false); // Close the popup menu after logout
   };
 
   // Handle profile icon click
   const handleProfileClick = (e) => {
     e.stopPropagation(); // Prevent event bubbling
-    setProfileMenuOpen(!profileMenuOpen);
+    setIsPopupOpen(!isPopupOpen); // Toggle popup menu
   };
 
   return (
@@ -90,36 +81,44 @@ function NavbarUser() {
             {user.username?.charAt(0).toUpperCase() ?? 'U'}
           </div>
 
-          {/* Profile Popup Menu */}
-          <div
-            ref={profileMenuRef}
-            className="absolute top-12 right-0 bg-white shadow-lg rounded-lg py-2 w-48 z-50 opacity-0 hidden"
-          >
-            {/* Conditionally render based on user role */}
-            {user.role === 'customer' && (
-              <Link to="/customer-profile">
-                <div className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                  <User size={18} />
-                  <span>Customer Profile</span>
-                </div>
-              </Link>
-            )}
-            {user.role === 'driver' && (
-              <Link to="/driver-profile">
-                <div className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                  <Settings size={18} />
-                  <span>Driver Profile</span>
-                </div>
-              </Link>
-            )}
+          {/* Popup Menu */}
+          {isPopupOpen && (
             <div
-              className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={handleLogout}
+              ref={profileMenuRef}
+              className="absolute top-14 right-0 bg-white shadow-md rounded-md w-48 p-1 z-50"
+              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the popup
             >
-              <LogOut size={18} />
-              <span>Logout</span>
+              <ul>
+                {user.role === 'ROLE_DRIVER' ? (
+                  <li>
+                    <Link
+                      to="/admin"
+                      className="block px-4 py-2 text-black font-semibold hover:bg-slate-200"
+                    >
+                      Driver
+                    </Link>
+                  </li>
+                ) : (
+                  <li>
+                    <Link
+                      to="/user-profile/:id"
+                      className="block px-4 py-2 text-black font-semibold hover:bg-slate-200"
+                    >
+                      Profile
+                    </Link>
+                  </li>
+                )}
+                <li>
+                  <button
+                    onClick={handleLogout} // Call the handleLogout function
+                    className="block w-full text-left text-black font-semibold px-4 py-2 hover:bg-slate-200"
+                  >
+                    Log out
+                  </button>
+                </li>
+              </ul>
             </div>
-          </div>
+          )}
         </div>
       ) : (
         <Link to="/login">
@@ -171,3 +170,8 @@ function NavbarUser() {
 }
 
 export default NavbarUser;
+
+
+
+
+

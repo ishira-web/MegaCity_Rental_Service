@@ -22,9 +22,10 @@ public class Booking {
     private String dropLocation;
     private String bookingDate; // LocalDate for date
     private String bookingTime; // LocalTime for time
-    private String customerID;
+    private String customerId;
     private String driverID;
     private String bookingStatus;
     private String driverStatues;
+    private String fare;
     
 }

@@ -54,4 +54,12 @@ public class CategoryService {
                 .distinct()
                 .collect(Collectors.toList());
     }
+
+    public String getPricePerKmByCatModel(String catModel) {
+        Category category = categoryRepository.findByCatModel(catModel);
+        if (category != null) {
+            return category.getPricePerKm();
+        }
+        return null; // or throw an exception if category not found
+    }
 }

@@ -3,6 +3,7 @@ package com.cabservice.megacity.Controller;
 import com.cabservice.megacity.Model.Customer;
 import com.cabservice.megacity.Repository.CustomerRepository;
 import com.cabservice.megacity.Security.JWT.JwtUtils;
+import com.cabservice.megacity.Service.CategoryService;
 import com.cabservice.megacity.Service.CloudinaryService;
 import com.cabservice.megacity.Service.CustomerService;
 import com.cabservice.megacity.Service.EmailService;
@@ -42,6 +43,10 @@ public class CustomerController {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+
+    @Autowired
+     private CategoryService service;
 
     // Create a new customer
     @PostMapping("/createCustomer")
@@ -216,6 +221,12 @@ public class CustomerController {
         return "Password reset successfully!";
     }
     return "User not found!";
+}
+
+
+@GetMapping("/pricePerKm/{catModel}")
+public String getPricePerKm(@PathVariable String catModel) {
+    return service.getPricePerKmByCatModel(catModel);
 }
 
 }

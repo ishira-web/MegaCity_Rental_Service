@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface BoookingRepository extends MongoRepository<Booking, String> {
     // Custom method to find bookings by customer ID
-    List<Booking> findByCustomerID(String customerID);
+    
 
     // Custom method to find a booking by its ID
     Optional<Booking> findByBookingId(String bookingId);
@@ -17,4 +17,7 @@ public interface BoookingRepository extends MongoRepository<Booking, String> {
 
        // Custom method to find drivers by their status
       List<Driver> findByDriverStatues(String status);
+
+
+      List<Booking> findByCustomerId(String customerId);
 }

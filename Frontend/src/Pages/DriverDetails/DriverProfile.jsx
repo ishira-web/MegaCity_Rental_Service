@@ -14,6 +14,8 @@ function DriverProfile({ driverID }) {
     ongoing: [],
     declined: []
   });
+  const { id } = useParams();
+  console.log(id);
 
   useEffect(() => {
     const fetchDriverProfile = async () => {

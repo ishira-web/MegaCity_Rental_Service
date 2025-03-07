@@ -110,7 +110,7 @@ public class BookingService {
 
     // Get bookings by customer ID
     public List<Booking> getBookingsByCustomerId(String customerId) {
-        return bookingRepository.findByCustomerID(customerId);
+        return bookingRepository.findByCustomerId(customerId);
     }
 
     // Delete a booking by its ID
