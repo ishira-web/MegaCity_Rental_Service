@@ -36,7 +36,7 @@ const LoginPage = () => {
             navigate("/");
             break;
           case "ROLE_DRIVER":
-            navigate(`/driver-profile/${userId}`);
+            navigate(`/`);
             break;
           case "ROLE_ADMIN":
             navigate("/admin/*");
