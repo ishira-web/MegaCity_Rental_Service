@@ -40,7 +40,7 @@ public class DriverController {
     @PostMapping("/auth/createDriver")
     public ResponseEntity<String> createDriver(
             @RequestParam("imageUrl") MultipartFile imageUrl,
-            @RequestParam("carImageUrl") MultipartFile carImageUrl, // Change here
+            @RequestParam("carImageUrl") MultipartFile carImageUrl, 
             @RequestParam("driverName") String driverName,
             @RequestParam("driverEmail") String driverEmail,
             @RequestParam("userName") String userName,

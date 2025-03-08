@@ -18,10 +18,12 @@ import LoginPage from './Pages/Login/LoginPage';
 import Unauthorized from './Pages/Components/Unauthorized';
 import PasswordReset from './Pages/Login/PasswordReset';
 import Reciept from '../src/Pages/Components/Reciept';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <AuthProvider>
+      <Toaster position="top-center" reverseOrder={false} />
       <Routes>
         <Route path="/" element={<Layout />} />
         <Route path="/ride" element={<RideLayout />} />

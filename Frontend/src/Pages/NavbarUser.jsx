@@ -93,7 +93,7 @@ function NavbarUser() {
                 {userId.role === 'ROLE_DRIVER' ? (
                   <li>
                     <Link
-                      to="/driver-profile/:id"
+                      to="/driver-profile/${userId}"
                       className="block px-4 py-2 text-black font-semibold hover:bg-slate-200"
                     >
                       Driver
@@ -102,7 +102,7 @@ function NavbarUser() {
                 ) : (
                   <li>
                     <Link
-                      to="/user-profile/:id"
+                      to="/user-profile/${userId}"
                       className="block px-4 py-2 text-black font-semibold hover:bg-slate-200"
                     >
                       Profile

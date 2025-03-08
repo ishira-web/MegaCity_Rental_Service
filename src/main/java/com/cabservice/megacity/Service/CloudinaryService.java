@@ -13,7 +13,7 @@ public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
-    public CloudinaryService(
+    public CloudinaryService(   
         @Value("${cloudinary.cloud-name}") String cloudName,
         @Value("${cloudinary.api-key}") String apiKey,
         @Value("${cloudinary.api-secret}") String apiSecret

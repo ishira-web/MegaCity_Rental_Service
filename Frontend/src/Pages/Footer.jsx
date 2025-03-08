@@ -25,7 +25,7 @@ function Footer() {
       <div className='mb-10'>
         <ul>
             <li><Link to='/blog'>Blog</Link></li>
-            <li><Link to='/mouse'>Contact Us</Link></li>
+            <li><Link to='/'>Contact Us</Link></li>
            <Link to='driver-register'><li>Join as a Driver</li></Link> 
         </ul>
       </div>
