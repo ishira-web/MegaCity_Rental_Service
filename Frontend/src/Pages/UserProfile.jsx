@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Mail, Phone, Calendar, X, Camera } from "lucide-react";
 import { useParams } from "react-router-dom";
-import gsap from "gsap";
 
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -56,7 +55,7 @@ const UserProfile = () => {
           `http://localhost:8080/auth/customer/${userId}`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
             },
           }
         );
@@ -89,19 +88,23 @@ const UserProfile = () => {
           name: profile.name,
           email: profile.email,
           phone: profile.phone,
-          customerProfile: profilePic, // Include the updated profile picture
+          nicNumber: profile.nicnumber,
+          driverAddress: profile.driverAddress,
+          customerProfile: profile.imageUrl,
         },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
           },
         }
       );
-      alert("Profile updated successfully!");
+
+      if (response.status === 200) {
+        alert("Profile updated successfully!");
+      }
     } catch (err) {
-      console.error("Error updating profile:", err);
-      alert("Failed to update profile.");
+      setError("Failed to update profile");
+      console.error(err);
     }
   };
 
@@ -150,44 +153,42 @@ const UserProfile = () => {
         </div>
 
         {/* Bookings Section */}
-        {/* Bookings Section */}
-<div className="bg-white shadow-lg rounded-2xl p-10 w-[750px] h-[500px] overflow-y-auto">
-  <h3 className="text-xl font-semibold mb-6">Your Bookings</h3>
-  {loading && <p className="text-center text-lg">Loading...</p>}
-  {error && <p className="text-center text-red-500">{error}</p>}
-  {!loading && bookings.length === 0 && (
-    <p className="text-center text-lg text-gray-500">No bookings found.</p>
-  )}
-  {!loading && bookings.length > 0 && (
-    <div>
-      <ul className="space-y-4">
-        {bookings.map((booking) => (
-          <li
-            key={booking.id}
-            className="p-6 border rounded-lg flex justify-between items-center shadow-sm"
-          >
+        <div className="bg-white shadow-lg rounded-2xl p-10 w-[750px] h-[500px] overflow-y-auto">
+          <h3 className="text-xl font-semibold mb-6">Your Bookings</h3>
+          {loading && <p className="text-center text-lg">Loading...</p>}
+          {error && <p className="text-center text-red-500">{error}</p>}
+          {!loading && bookings.length === 0 && (
+            <p className="text-center text-lg text-gray-500">No bookings found.</p>
+          )}
+          {!loading && bookings.length > 0 && (
             <div>
-              <p className="text-md font-semibold">Booking ID: {booking.bookingId}</p>
-              <p className="text-gray-600 text-sm">Total Price: {booking.fare}</p>
+              <ul className="space-y-4">
+                {bookings.map((booking) => (
+                  <li
+                    key={booking.id}
+                    className="p-6 border rounded-lg flex justify-between items-center shadow-sm"
+                  >
+                    <div>
+                      <p className="text-md font-semibold">Booking ID: {booking.bookingId}</p>
+                      <p className="text-gray-600 text-sm">Total Price: {booking.fare}</p>
+                    </div>
+                    <span
+                      className={`px-4  py-1 text-md font-medium rounded-full ${
+                        booking.status === "Completed"
+                          ? "bg-green-100 text-green-800"
+                          : booking.status === "Pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {booking.bookingStatus}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <span
-              className={`px-4  py-1 text-md font-medium rounded-full ${
-                booking.status === "Completed"
-                  ? "bg-green-100 text-green-800"
-                  : booking.status === "Pending"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-red-100 text-red-800"
-              }`}
-            >
-              {booking.bookingStatus}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
-</div>
-
+          )}
+        </div>
       </div>
 
       {/* Edit Profile Popup */}

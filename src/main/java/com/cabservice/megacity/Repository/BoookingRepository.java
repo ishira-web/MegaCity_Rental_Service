@@ -20,4 +20,10 @@ public interface BoookingRepository extends MongoRepository<Booking, String> {
 
 
       List<Booking> findByCustomerId(String customerId);
+
+
+    List<Booking> findByBookingStatus(String string);
+
+
+    List<Booking> findByDriverID(String driverID);
 }

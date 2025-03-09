@@ -170,7 +170,7 @@ public class DriverController {
     /**
      * Updates a driver.
      */
-    @PatchMapping("/driver/{driverID}")
+    @PutMapping("/driver/{driverID}")
     public ResponseEntity<Driver> updateDriver(@PathVariable String driverID, @RequestBody Driver updatedDriver) {
         Driver driver = service.updateDriver(driverID, updatedDriver);
         if (driver != null) {

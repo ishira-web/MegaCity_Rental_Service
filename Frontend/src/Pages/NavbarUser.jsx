@@ -14,6 +14,7 @@ function NavbarUser() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
+  const role = localStorage.getItem('role'); // Get role from localStorage
 
   // GSAP animation for mobile menu
   useEffect(() => {
@@ -90,11 +91,11 @@ function NavbarUser() {
               onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the popup
             >
               <ul>
-                {userId.role === 'ROLE_DRIVER' ? (
+                {role === 'ROLE_DRIVER' ? (
                   <li>
                     <Link
-                      to="/driver-profile/${userId}"
-                      className="block px-4 py-2 text-white font-semibold bg-blue-600  hover:bg-slate-200 hover:text-black text-center rounded-md"
+                      to={`/driver-profile/${userId}`} // Use backticks for template literals
+                      className="block px-4 py-2 text-white font-semibold bg-blue-600 hover:bg-slate-200 hover:text-black text-center rounded-md"
                     >
                       Driver
                     </Link>
@@ -102,8 +103,8 @@ function NavbarUser() {
                 ) : (
                   <li>
                     <Link
-                      to="/user-profile/${userId}"
-                      className="block px-4 py-2 text-white font-semibold bg-blue-600  hover:bg-slate-200 hover:text-black text-center rounded-md"
+                      to={`/user-profile/${userId}`} // Use backticks for template literals
+                      className="block px-4 py-2 text-white font-semibold bg-blue-600 hover:bg-slate-200 hover:text-black text-center rounded-md"
                     >
                       Profile
                     </Link>
@@ -112,7 +113,7 @@ function NavbarUser() {
                 <li>
                   <button
                     onClick={handleLogout} // Call the handleLogout function
-                    className="block w-full  text-white font-semibold px-4 py-2 hover:bg-slate-200 bg-red-500 hover:text-black rounded-md text-center"
+                    className="block w-full text-white font-semibold px-4 py-2 hover:bg-slate-200 bg-red-500 hover:text-black rounded-md text-center"
                   >
                     Log out
                   </button>
@@ -171,8 +172,3 @@ function NavbarUser() {
 }
 
 export default NavbarUser;
-
-
-
-
-

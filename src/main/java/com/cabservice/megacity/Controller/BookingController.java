@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -121,6 +122,30 @@ public class BookingController {
         }
     }
 
+    //Get All Bookings
+    @GetMapping("/auth/bookings")
+    public ResponseEntity<?> getAllBookings() {
+        try {
+            List<Booking> bookings = bookingService.getAllBookings();
+            if (!bookings.isEmpty()) {
+                return ResponseEntity.ok(bookings);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("No bookings found", "No bookings exist"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Booking fetch failed", e.getMessage()));
+        }
+    }
+
+
+
+        @GetMapping("/auth/booking/totalFare")
+    public BigDecimal getTotalFare() {
+        return bookingService.getTotalFare();
+    }
+
     // Helper response classes              
     public static class SuccessResponse {            
         private String message;
@@ -161,6 +186,24 @@ public class BookingController {
 
         public String getDriverId() {
             return driverID;
+        }
+    }
+
+
+    // Get Booking by Driver ID
+    @GetMapping("/auth/driver/booking/{driverID}")
+    public ResponseEntity<?> getBookingByDriverId(@PathVariable String driverID) {
+        try {
+            List<Booking> bookings = bookingService.getBookingsByDriverId(driverID);
+            if (!bookings.isEmpty()) {
+                return ResponseEntity.ok(bookings);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("No bookings found", "No bookings exist for this driver"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Booking fetch failed", e.getMessage()));
         }
     }
 }

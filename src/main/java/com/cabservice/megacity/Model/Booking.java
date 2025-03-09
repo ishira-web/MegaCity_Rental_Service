@@ -17,7 +17,7 @@ public class Booking {
     @Id
     private String bookingId;
     private String pickupLocation;
-    private String cutomerName;
+    private String customerName;
     private String customerEmail;
     private String dropLocation;
     private String bookingDate; // LocalDate for date

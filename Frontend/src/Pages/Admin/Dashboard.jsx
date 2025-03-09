@@ -13,7 +13,7 @@ function Dashboard() {
   const [luggage, setLuggage] = useState("");
   const [price, setPrice] = useState("");
   const [drivers, setDrivers] = useState([""]);
-
+  const [totalRevenue, setTotalRevenue] = useState(0);
   // Validation messages
   const [vehicleModelError, setVehicleModelError] = useState("");
   const [seatsError, setSeatsError] = useState("");
@@ -49,6 +49,33 @@ function Dashboard() {
 
     return () => clearInterval(interval);
   }, [drivers]);
+ 
+   //Fetch Revenue
+  useEffect(() => {
+    const fetchTotalFare = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/auth/booking/totalFare");
+        if (!response.ok) throw new Error("Failed to fetch total fare");
+        const data = await response.json();
+        setTotalRevenue(data.totalFare); // Adjust based on API response structure
+      } catch (error) {
+        toast.error("Failed to load total revenue");
+        console.error("Error fetching total fare:", error);
+      }
+    };
+
+    fetchTotalFare();
+
+    // Poll for total revenue updates every 30 seconds
+    const interval = setInterval(fetchTotalFare, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+
+
+
+
 
   // Fetch car types from API
   useEffect(() => {

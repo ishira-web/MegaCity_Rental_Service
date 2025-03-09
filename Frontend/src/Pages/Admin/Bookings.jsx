@@ -1,47 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 
 function Bookings() {
-  const [bookings, setBookings] = useState([
-    {
-      id: 1,
-      customerName: 'John Doe',
-      date: '2025-02-17',
-      time: '10:00 AM',
-      driverName: 'Mike Johnson',
-      status: 'Pending',
-      pickupLocation: 'Colombo',
-      dropLocation: 'Kandy',
-    },
-    {
-      id: 2,
-      customerName: 'Jane Smith',
-      date: '2025-02-18',
-      time: '2:00 PM',
-      driverName: 'Alex Brown',
-      status: 'Accepted',
-      pickupLocation: 'Galle',
-      dropLocation: 'Colombo',
-    },
-    // Add more sample bookings here
-  ]);
+  const [bookings, setBookings] = useState([]); // ✅ Initialize as an empty array
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [searchQuery, setSearchQuery] = useState('');
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/auth/bookings");
+        if (!response.ok) {
+          throw new Error("Failed to fetch bookings");
+        }
+        const data = await response.json();
+        setBookings(data);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      }
+    };
+    fetchBookings();
+  }, []);
 
-  // Filter bookings based on search query
-  const filteredBookings = bookings.filter(
+  // ✅ Ensure bookings is always an array before filtering
+  const filteredBookings = bookings?.filter(
     (booking) =>
-      booking.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.driverName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.pickupLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      booking.dropLocation.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleStatusChange = (id, newStatus) => {
-    const updatedBookings = bookings.map((booking) =>
-      booking.id === id ? { ...booking, status: newStatus } : booking
-    );
-    setBookings(updatedBookings);
-  };
+      booking?.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking?.driverName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking?.pickupLocation?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      booking?.dropLocation?.toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
 
   const handleDelete = (id) => {
     const updatedBookings = bookings.filter((booking) => booking.id !== id);
@@ -67,48 +53,40 @@ function Bookings() {
         <table className="w-full table-auto border-collapse">
           <thead>
             <tr>
-              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Booking ID</th>
-              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Customer Name</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Customer Email</th>
               <th className="border px-4 py-2 text-left bg-gray-700 text-white">Date</th>
               <th className="border px-4 py-2 text-left bg-gray-700 text-white">Time</th>
-              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Driver Name</th>
+              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Total Price</th>
               <th className="border px-4 py-2 text-left bg-gray-700 text-white">Status</th>
-              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Pickup Location</th>
-              <th className="border px-4 py-2 text-left bg-gray-700 text-white">Drop Location</th>
               <th className="border px-4 py-2 text-left bg-gray-700 text-white">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredBookings.map((booking) => (
-              <tr key={booking.id}>
-                <td className="border px-4 py-2">{booking.id}</td>
-                <td className="border px-4 py-2">{booking.customerName}</td>
-                <td className="border px-4 py-2">{booking.date}</td>
-                <td className="border px-4 py-2">{booking.time}</td>
-                <td className="border px-4 py-2">{booking.driverName}</td>
-                <td className="border px-4 py-2">
-                  <select
-                    value={booking.status}
-                    onChange={(e) => handleStatusChange(booking.id, e.target.value)}
-                    className="border rounded p-1"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Accepted">Accepted</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
-                </td>
-                <td className="border px-4 py-2">{booking.pickupLocation}</td>
-                <td className="border px-4 py-2">{booking.dropLocation}</td>
-                <td className="border px-4 py-2">
-                  <button
-                    onClick={() => handleDelete(booking.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
+            {filteredBookings.length > 0 ? (
+              filteredBookings.map((booking, index) => (
+                <tr key={booking.id ?? `booking-${index}`}> {/* ✅ Fix unique key warning */}
+                  <td className="border px-4 py-2">{booking.customerEmail}</td>
+                  <td className="border px-4 py-2">{booking.bookingDate}</td>
+                  <td className="border px-4 py-2">{booking.bookingTime}</td>
+                  <td className="border px-4 py-2">{booking.fare}</td>
+                  <td className="border px-4 py-2">{booking.bookingStatus}</td>
+                  <td className="border px-4 py-2">
+                    <button
+                      onClick={() => handleDelete(booking.id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="9" className="border px-4 py-2 text-center">
+                  No bookings found
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { gsap } from 'gsap';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
@@ -10,6 +9,7 @@ function DriverProfile({ driverID }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const userId = localStorage.getItem("userId");
+
   const [bookings, setBookings] = useState({
     pending: [],
     ongoing: [],
@@ -22,9 +22,9 @@ function DriverProfile({ driverID }) {
     const fetchDriverProfile = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:8080/auth/driver/${userId}`, {
+        const response = await axios.get(`http://localhost:8080/auth/driverByID/${userId}`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
           }
         });
         
@@ -41,26 +41,6 @@ function DriverProfile({ driverID }) {
           imageUrl: response.data.imageUrl,
           carImageUrls: response.data.carImageUrls
         });
-
-        setBookings({
-          pending: [
-            { id: 1, customer: 'Jane Smith', pickup:   'Downtown', dropoff: 'Airport', date: '2025-03-01', time: '14:30' },
-            { id: 2, customer: 'Mike Johnson', pickup: 'Station',  dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 3, customer: 'Mike Johnson', pickup: 'Station',  dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 4, customer: 'Mike Johnson', pickup: 'Station',  dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 5, customer: 'Mike Johnson', pickup: 'Station',  dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 6, customer: 'Mike Johnson', pickup: 'Station',  dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 7, customer: 'Mike Johnson', pickup: 'Station',  dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 8, customer: 'Mike Johnson', pickup: 'Station',  dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 9, customer: 'Mike Johnson', pickup: 'Station',  dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 10, customer: 'Mike Johnson', pickup: 'Station', dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 11, customer: 'Mike Johnson', pickup: 'Station', dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 12, customer: 'Mike Johnson', pickup: 'Station', dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-            { id: 13, customer: 'Mike Johnson', pickup: 'Station', dropoff: 'Mall'   , date: '2025-03-02', time: '09:15' },
-          ],
-          ongoing: [],
-          declined: []
-        });
       } catch (err) {
         setError('Failed to fetch driver profile');
         console.error(err);
@@ -70,11 +50,7 @@ function DriverProfile({ driverID }) {
     };
 
     fetchDriverProfile();
-
-    gsap.from('.profile-card', { opacity: 0, y: 50, duration: 1, ease: 'power3.out' });
-    gsap.from('.tab-content', { opacity: 0, x: -30, duration: 0.8, delay: 0.3, ease: 'power2.out' });
-    gsap.from('.booking-item', { opacity: 0, y: 20, duration: 0.5, stagger: 0.2, ease: 'power2.out' });
-  }, [driverID]);
+  }, [userId]); // Add userId as a dependency
 
   const handleAccept = (bookingId) => {
     const booking = bookings.pending.find(b => b.id === bookingId);
@@ -94,9 +70,7 @@ function DriverProfile({ driverID }) {
     });
   };
 
-
-
-  //Update Function
+  // Update Function
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -108,19 +82,32 @@ function DriverProfile({ driverID }) {
         currentLocation: profile.currentLocation,
       };
       
-      await axios.patch(`http://localhost:8080/driver/${userId}`, updatedDriver, {
+      await axios.put(`http://localhost:8080/driver/${userId}`, updatedDriver, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       setIsEditing(false);
     } catch (err) {
       setError('Failed to update profile');
       console.error(err);
     }
   };
+
+  // Fetching Booking Details By Driver ID
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/booking/driver/${userId}`);
+        setBookings(response.data);
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      }
+    };
+    fetchBookings();
+  }, [userId]); // Add userId as a dependency
 
   if (loading) return <div className="text-center py-10 text-gray-600">Loading...</div>;
   if (error) return <div className="text-center py-10 text-red-500">{error}</div>;
@@ -238,85 +225,64 @@ function DriverProfile({ driverID }) {
           </div>
         </div>
 
-        {/* Right Side: Tabs and Bookings */}
+        {/* Right Side Bookings */}
         <div className="lg:w-1/2">
-          <div className="tab-content bg-white rounded-2xl shadow-xl p-8 h-full">
-            <div className="flex border-b-2 border-gray-200 mb-8">
-              {['pending', 'ongoing', 'declined', 'reviews'].map(tab => (
-                <button
-                  key={tab}
-                  className={`px-6 py-3 font-medium ${
-                    activeTab === tab 
-                      ? 'border-b-4 border-indigo-600 text-indigo-600' 
-                      : 'text-gray-600 hover:text-indigo-500'
-                  } transition-all duration-300`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)} {tab !== 'reviews' && 'Bookings'}
-                </button>
-              ))}
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="flex space-x-4 mb-6">
+              <button 
+                onClick={() => setActiveTab('pending')}
+                className={`px-4 py-2 rounded-full ${
+                  activeTab === 'pending' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+                }`}
+              >
+                Pending
+              </button>
+              <button 
+                onClick={() => setActiveTab('ongoing')}
+                className={`px-4 py-2 rounded-full ${
+                  activeTab === 'ongoing' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+                }`}
+              >
+                Ongoing
+              </button>
+              <button 
+                onClick={() => setActiveTab('declined')}
+                className={`px-4 py-2 rounded-full ${
+                  activeTab === 'declined' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
+                }`}
+              >
+                Declined
+              </button>
             </div>
-
-            {/* Scrollable Booking Container */}
-            <div className="max-h-[400px] overflow-y-auto space-y-6">
-              {activeTab === 'pending' && (
-                bookings.pending.map(booking => (
-                  <div key={booking.id} className="booking-item flex justify-between items-center p-5 bg-gradient-to-r from-gray-50 to-indigo-50 rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
-                    <div>
-                      <p className="font-semibold text-lg text-gray-800">{booking.customer}</p>
-                      <p className="text-sm text-gray-600">{booking.pickup} → {booking.dropoff}</p>
-                      <p className="text-sm text-indigo-600 font-medium mt-1">
-                        {booking.date} at {booking.time}
-                      </p>
-                    </div>
-                    <div className="space-x-3">
-                      <button 
-                        onClick={() => handleAccept(booking.id)}
-                        className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300"
-                      >
-                        Accept
-                      </button>
-                      <button 
-                        onClick={() => handleDecline(booking.id)}
-                        className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300"
-                      >
-                        Decline
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-
-              {activeTab === 'ongoing' && (
-                bookings.ongoing.map(booking => (
-                  <div key={booking.id} className="booking-item p-5 bg-gradient-to-r from-gray-50 to-green-50 rounded-xl shadow-md">
-                    <p className="font-semibold text-lg text-gray-800">{booking.customer}</p>
-                    <p className="text-sm text-gray-600">{booking.pickup} → {booking.dropoff}</p>
-                    <p className="text-sm text-green-600 font-medium mt-1">
-                      {booking.date} at {booking.time}
-                    </p>
-                  </div>
-                ))
-              )}
-
-              {activeTab === 'declined' && (
-                bookings.declined.map(booking => (
-                  <div key={booking.id} className="booking-item p-5 bg-gradient-to-r from-gray-50 to-red-50 rounded-xl shadow-md">
-                    <p className="font-semibold text-lg text-gray-800">{booking.customer}</p>
-                    <p className="text-sm text-gray-600">{booking.pickup} → {booking.dropoff}</p>
-                    <p className="text-sm text-red-600 font-medium mt-1">
-                      {booking.date} at {booking.time}
-                    </p>
-                  </div>
-                ))
-              )}
-
-              {activeTab === 'reviews' && (
-                <div className="p-5 bg-gradient-to-r from-gray-50 to-yellow-50 rounded-xl shadow-md">
-                  <p className="font-semibold text-lg text-gray-800">Recent Reviews</p>
-                  <p className="text-sm text-gray-600">Coming soon...</p>
-                </div>
-              )}
+            <div className="space-y-4">
+            {bookings[activeTab].map(booking => (
+  <div key={booking.bookingId} className="bg-gray-50 p-4 rounded-lg">
+    <div className="flex justify-between items-center">
+      <div>
+        <p className="text-gray-700 font-semibold">{booking.customerName}</p>
+        <p className="text-gray-500 text-sm">{booking.pickupLocation} to {booking.dropLocation}</p>
+        <p className="text-gray-500 text-sm">{new Date(booking.bookingTime).toLocaleString()}</p>
+        <p className="text-gray-500 text-sm">Fare: {booking.fare}</p>
+      </div>
+      {activeTab === 'pending' && (
+        <div className="flex space-x-2">
+          <button 
+            onClick={() => handleAccept(booking.bookingId)}
+            className="bg-green-500 text-white px-3 py-1 rounded-full text-sm"
+          >
+            Approve
+          </button>
+          <button 
+            onClick={() => handleDecline(booking.bookingId)}
+            className="bg-red-500 text-white px-3 py-1 rounded-full text-sm"
+          >
+            Reject
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+))}
             </div>
           </div>
         </div>

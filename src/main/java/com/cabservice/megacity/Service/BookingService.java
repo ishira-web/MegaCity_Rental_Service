@@ -7,6 +7,7 @@ import com.cabservice.megacity.Repository.DriverRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -136,5 +137,34 @@ public class BookingService {
     // Additional method to get available drivers
     public List<Driver> getAvailableDrivers() {
         return driverRepository.findByDriverStatues("Available");
+    }
+
+
+    // Get All Bookings
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
+
+
+
+     // Method to get the total fare of all completed bookings
+     public BigDecimal getTotalFare() {
+        List<Booking> completedBookings = bookingRepository.findByBookingStatus("Completed");
+
+        return completedBookings.stream()
+                .map(booking -> {
+                    try {
+                        return new BigDecimal(booking.getFare());
+                    } catch (NumberFormatException e) {
+                        return BigDecimal.ZERO; // Handle cases where fare is not a valid number
+                    }
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+
+    // Get  Bookings by Driver ID
+    public List<Booking> getBookingsByDriverId(String driverID) {
+        return bookingRepository.findByDriverID(driverID);
     }
 }

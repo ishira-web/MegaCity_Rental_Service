@@ -32,22 +32,8 @@ function App() {
         <Route path="/user-profile/:id" element={<PrivateRoute><UserProfile/></PrivateRoute> } />
         <Route path="/sign-up" element={<Register />} />
         <Route path="/blog" element={<BlogLayout />} />
-        <Route
-          path="/driver-profile/:id"
-          element={
-            <PrivateRoute>
-              <DriverProfile />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/booking-form/:id"
-          element={
-            <PrivateRoute>
-              <BookingForm />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/driver-profile/:id"element={<PrivateRoute><DriverProfile/></PrivateRoute>}/>
+        <Route path="/booking-form/:id"element={<PrivateRoute><BookingForm/></PrivateRoute>}/>
         <Route path="/booking" element={<BookingLayout />} />
         <Route path="/bill" element={<Bill />} />
         <Route path="/admin/*" element={<AdminHome />} />
