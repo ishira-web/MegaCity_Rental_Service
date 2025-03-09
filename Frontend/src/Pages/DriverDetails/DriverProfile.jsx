@@ -1,290 +1,269 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import gsap from 'gsap';
 
-function DriverProfile({ driverID }) {
-  const [activeTab, setActiveTab] = useState('pending');
+function DriverProfile() {
   const [profile, setProfile] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [activeTab, setActiveTab] = useState('profile');
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const userId = localStorage.getItem("userId");
-
-  const [bookings, setBookings] = useState({
-    pending: [],
-    ongoing: [],
-    declined: []
-  });
-  const { id } = useParams();
-  console.log(id);
+  const userId = localStorage.getItem('userId');
+  const tabContentRef = useRef(null);
+  const profileRef = useRef(null);
+  const bookingsRef = useRef(null);
 
   useEffect(() => {
-    const fetchDriverProfile = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`http://localhost:8080/auth/driverByID/${userId}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
-          }
-        });
-        
-        setProfile({
-          name: response.data.driverName,
-          email: response.data.driverEmail,
-          phone: response.data.driverPhone,
-          vehicle: `${response.data.catModel} (${response.data.vehicalNumber})`,
-          license: response.data.driverNic,
-          rating: 4.5,
-          driverAddress: response.data.driverAddress,
-          currentLocation: response.data.currentLocation,
-          status: response.data.driverStatues,
-          imageUrl: response.data.imageUrl,
-          carImageUrls: response.data.carImageUrls
-        });
-      } catch (err) {
-        setError('Failed to fetch driver profile');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // GSAP animation for tab content
+    gsap.fromTo(tabContentRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
+  }, [activeTab]);
 
-    fetchDriverProfile();
-  }, [userId]); // Add userId as a dependency
+  useEffect(() => {
+    // Fetch driver profile
+    axios
+      .get(`http://localhost:8080/auth/driverByID/${userId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('jwtToken')}` },
+      })
+      .then((response) => setProfile(response.data))
+      .catch((error) => console.error('Error fetching profile:', error));
 
-  const handleAccept = (bookingId) => {
-    const booking = bookings.pending.find(b => b.id === bookingId);
-    setBookings({
-      ...bookings,
-      pending: bookings.pending.filter(b => b.id !== bookingId),
-      ongoing: [...bookings.ongoing, booking]
-    });
-  };
+    // Fetch driver bookings
+    axios
+      .get(`http://localhost:8080/auth/driver/booking/${userId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('jwtToken')}` },
+      })
+      .then((response) => setBookings(response.data))
+      .catch((error) => console.error('Error fetching bookings:', error));
+  }, [userId]);
 
-  const handleDecline = (bookingId) => {
-    const booking = bookings.pending.find(b => b.id === bookingId);
-    setBookings({
-      ...bookings,
-      pending: bookings.pending.filter(b => b.id !== bookingId),
-      declined: [...bookings.declined, booking]
-    });
-  };
-
-  // Update Function
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     try {
-      const updatedDriver = {
-        driverName: profile.name,
-        driverEmail: profile.email,
-        driverPhone: profile.phone,
-        driverAddress: profile.driverAddress,
-        currentLocation: profile.currentLocation,
-      };
-      
-      await axios.put(`http://localhost:8080/driver/${userId}`, updatedDriver, {
+      await axios.put(`http://localhost:8080/auth/updatedriver/${userId}`, profile, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+          'Content-Type': 'application/json',
+        },
       });
 
+      toast.success('Profile updated successfully!');
       setIsEditing(false);
     } catch (err) {
-      setError('Failed to update profile');
+      toast.error('Profile update failed');
       console.error(err);
     }
   };
 
-  // Fetching Booking Details By Driver ID
-  useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/booking/driver/${userId}`);
-        setBookings(response.data);
-      } catch (error) {
-        console.error("Error fetching bookings:", error);
-      }
-    };
-    fetchBookings();
-  }, [userId]); // Add userId as a dependency
+  const handleConfirmBooking = (bookingId) => {
+    axios
+      .post(
+        `http://localhost:8080/auth/confirm/${bookingId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('jwtToken')}` },
+        }
+      )
+      .then(() => {
+        toast.success('Booking confirmed successfully!');
+        setBookings(
+          bookings.map((booking) =>
+            booking.id === bookingId ? { ...booking, status: 'Confirmed' } : booking
+          )
+        );
+      })
+      .catch((error) => {
+        toast.error('Failed to confirm booking');
+        console.error(error);
+      });
+  };
 
-  if (loading) return <div className="text-center py-10 text-gray-600">Loading...</div>;
-  if (error) return <div className="text-center py-10 text-red-500">{error}</div>;
-  if (!profile) return <div className="text-center py-10 text-gray-600">No driver data found</div>;
+  const handleRejectBooking = (bookingId) => {
+    axios
+      .post(
+        `http://localhost:8080/auth/booking/delete/${bookingId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('jwtToken')}` },
+        }
+      )
+      .then(() => {
+        toast.success('Booking rejected successfully!');
+        setBookings(bookings.filter((booking) => booking.id !== bookingId));
+      })
+      .catch((error) => {
+        toast.error('Failed to reject booking');
+        console.error(error);
+      });
+  };
+
+  const handleEndTrip = (bookingId) => {
+    axios
+      .post(
+        `http://localhost:8080/auth/end/${bookingId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('jwtToken')}` },
+        }
+      )
+      .then(() => {
+        toast.success('Trip ended successfully!');
+        setBookings(
+          bookings.map((booking) =>
+            booking.bookingId === bookingId ? { ...booking, status: 'Confirmed' } : booking
+          )
+        );
+      })
+      .catch((error) => {
+        toast.error('Failed to end trip');
+        console.error(error);
+      });
+  };
+
+  const toggleEditing = () => {
+    setIsEditing(!isEditing);
+    if (!isEditing) {
+      gsap.fromTo(profileRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
+    }
+  };
 
   return (
-    <div className="min-h-screen font-simplon bg-black py-12">
-      <div className="container mx-auto px-4 flex flex-col lg:flex-row gap-8">
-        {/* Left Side: Profile Card */}
-        <div className="lg:w-1/2">
-          <div className="profile-card bg-white rounded-2xl shadow-xl p-8 transform hover:scale-105 transition-all duration-300">
-            {!isEditing ? (
-              <div className="flex flex-col items-center">
-                <div className="relative">
-                  <img 
-                    src={profile.imageUrl} 
-                    alt="Driver" 
-                    className="w-28 h-28 rounded-full object-cover mb-6 shadow-lg"
-                  />
-                  <div className={`absolute -top-2 -right-2 text-white text-xs px-2 py-1 rounded-full ${
-                    profile.status === 'Available' ? 'bg-green-500' : 
-                    profile.status === 'Pending' ? 'bg-yellow-500' : 'bg-red-500'
-                  }`}>
-                    {profile.status}
-                  </div>
-                </div>
-                <h2 className="text-3xl font-extrabold text-gray-800 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  {profile.name}
-                </h2>
-                <p className="text-gray-600 mb-4">{profile.email}</p>
-                <div className="grid grid-cols-2 gap-6 mt-4 text-center">
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500">Phone</p>
-                    <p className="font-semibold text-indigo-600">{profile.phone}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500">Vehicle</p>
-                    <p className="font-semibold text-indigo-600">{profile.vehicle}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500">License</p>
-                    <p className="font-semibold text-indigo-600">{profile.license}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm text-gray-500">Rating</p>
-                    <p className="font-semibold text-yellow-500">{profile.rating} ★</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg col-span-2">
-                    <p className="text-sm text-gray-500">Address</p>
-                    <p className="font-semibold text-indigo-600">{profile.driverAddress}</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setIsEditing(true)}
-                  className="mt-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-full hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-md"
-                >
-                  Edit Profile
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleProfileUpdate} className="space-y-6">
-                <div className="relative">
+    <div className="min-h-screen font-sans bg-gray-100 py-12">
+      <ToastContainer />
+      <div className="container mx-auto p-6 bg-white shadow-lg rounded-2xl">
+        <div className="flex justify-center gap-8 border-b pb-4">
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`px-6 py-2 text-lg font-semibold transition duration-300 rounded-lg ${
+              activeTab === 'profile' ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+            }`}
+          >
+            Profile
+          </button>
+          <button
+            onClick={() => setActiveTab('bookings')}
+            className={`px-6 py-2 text-lg font-semibold transition duration-300 rounded-lg ${
+              activeTab === 'bookings' ? 'bg-indigo-600 text-white' : 'bg-gray-200'
+            }`}
+          >
+            Bookings
+          </button>
+        </div>
+
+        <div ref={tabContentRef} className="tab-content mt-6">
+          {activeTab === 'profile' && profile && (
+            <div ref={profileRef} className="flex flex-col items-center text-center">
+              <img
+                src={profile.imageUrl}
+                alt="Driver"
+                className="w-32 h-32 rounded-full shadow-lg"
+              />
+              <h2 className="text-2xl font-bold mt-4 text-gray-800">{profile.driverName}</h2>
+              <p className="text-gray-600">{profile.driverEmail}</p>
+              <p className="mt-2 font-medium text-indigo-600">{profile.vehicle}</p>
+              <p className="mt-2 text-gray-500">Address: {profile.driverAddress}</p>
+
+              <button
+                onClick={toggleEditing}
+                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+              >
+                {isEditing ? 'Cancel Editing' : 'Edit Profile'}
+              </button>
+
+              {isEditing && (
+                <form onSubmit={handleProfileUpdate} className="mt-4 flex flex-col gap-4">
                   <input
                     type="text"
-                    value={profile.name}
-                    onChange={(e) => setProfile({...profile, name: e.target.value})}
-                    className="w-full p-3 border-2 border-indigo-200 rounded-lg focus:border-indigo-600 focus:outline-none transition-all duration-300"
+                    value={profile.driverName}
+                    onChange={(e) => setProfile({ ...profile, driverName: e.target.value })}
+                    className="p-2 border rounded-lg"
                     placeholder="Name"
                   />
-                </div>
-                <div className="relative">
                   <input
                     type="email"
-                    value={profile.email}
-                    onChange={(e) => setProfile({...profile, email: e.target.value})}
-                    className="w-full p-3 border-2 border-indigo-200 rounded-lg focus:border-indigo-600 focus:outline-none transition-all duration-300"
+                    value={profile.driverEmail}
+                    onChange={(e) => setProfile({ ...profile, driverEmail: e.target.value })}
+                    className="p-2 border rounded-lg"
                     placeholder="Email"
                   />
-                </div>
-                <div className="relative">
                   <input
-                    type="tel"
-                    value={profile.phone}
-                    onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                    className="w-full p-3 border-2 border-indigo-200 rounded-lg focus:border-indigo-600 focus:outline-none transition-all duration-300"
+                    type="text"
+                    value={profile.driverPhone}
+                    onChange={(e) => setProfile({ ...profile, driverPhone: e.target.value })}
+                    className="p-2 border rounded-lg"
                     placeholder="Phone"
                   />
-                </div>
-                <div className="relative">
                   <input
                     type="text"
                     value={profile.driverAddress}
-                    onChange={(e) => setProfile({...profile, driverAddress: e.target.value})}
-                    className="w-full p-3 border-2 border-indigo-200 rounded-lg focus:border-indigo-600 focus:outline-none transition-all duration-300"
+                    onChange={(e) => setProfile({ ...profile, driverAddress: e.target.value })}
+                    className="p-2 border rounded-lg"
                     placeholder="Address"
                   />
-                </div>
-                <div className="flex space-x-4">
-                  <button 
-                    type="submit"
-                    className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-3 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300"
-                  >
+
+                  <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded-lg">
                     Save
                   </button>
-                  <button 
-                    type="button"
-                    onClick={() => setIsEditing(false)}
-                    className="flex-1 bg-gray-200 p-3 rounded-lg hover:bg-gray-300 transition-all duration-300"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
+                </form>
+              )}
+            </div>
+          )}
 
-        {/* Right Side Bookings */}
-        <div className="lg:w-1/2">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex space-x-4 mb-6">
-              <button 
-                onClick={() => setActiveTab('pending')}
-                className={`px-4 py-2 rounded-full ${
-                  activeTab === 'pending' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
-                }`}
-              >
-                Pending
-              </button>
-              <button 
-                onClick={() => setActiveTab('ongoing')}
-                className={`px-4 py-2 rounded-full ${
-                  activeTab === 'ongoing' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
-                }`}
-              >
-                Ongoing
-              </button>
-              <button 
-                onClick={() => setActiveTab('declined')}
-                className={`px-4 py-2 rounded-full ${
-                  activeTab === 'declined' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'
-                }`}
-              >
-                Declined
-              </button>
+          {activeTab === 'bookings' && (
+            <div ref={bookingsRef} className="mt-4 bg-white">
+              {bookings.length === 0 ? (
+                <p className="text-center text-gray-500">No bookings found.</p>
+              ) : (
+                bookings.map((booking) => (
+                  <div key={booking.id} className="p-4 mb-4 bg-white shadow rounded-lg">
+                    <h3 className="text-lg font-bold text-gray-800">{booking.customerName}</h3>
+                    <p className="text-sm text-gray-500">Pickup: {booking.pickupLocation}</p>
+                    <p className="text-sm text-gray-500">Dropoff: {booking.dropLocation}</p>
+                    <p className="text-sm text-gray-500">Date: {booking.bookingDate}</p>
+                    <p
+                      className={`text-sm font-semibold ${
+                        booking.bookingStatus === 'Pending'
+                          ? 'text-yellow-600'
+                          : booking.bookingStatus === 'Confirmed'
+                          ? 'text-green-600'
+                          : 'text-gray-500'
+                      }`}
+                    >
+                      Status: {booking.bookingStatus}
+                    </p>
+
+                    {booking.bookingStatus === 'Pending' && (
+                      <div className="mt-4 flex gap-4">
+                        <button
+                          onClick={() => handleConfirmBooking(booking.bookingId)}
+                          className="bg-green-500 text-white px-4 py-2 rounded-lg"
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          onClick={() => handleRejectBooking(booking.bookingId)}
+                          className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
+
+                    {booking.bookingStatus === 'Confirmed' && (
+                      <div className="mt-4 flex justify-end">
+                        <button
+                          onClick={() => handleEndTrip(booking.bookingId)}
+                          className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                        >
+                          End Trip
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
-            <div className="space-y-4">
-            {bookings[activeTab].map(booking => (
-  <div key={booking.bookingId} className="bg-gray-50 p-4 rounded-lg">
-    <div className="flex justify-between items-center">
-      <div>
-        <p className="text-gray-700 font-semibold">{booking.customerName}</p>
-        <p className="text-gray-500 text-sm">{booking.pickupLocation} to {booking.dropLocation}</p>
-        <p className="text-gray-500 text-sm">{new Date(booking.bookingTime).toLocaleString()}</p>
-        <p className="text-gray-500 text-sm">Fare: {booking.fare}</p>
-      </div>
-      {activeTab === 'pending' && (
-        <div className="flex space-x-2">
-          <button 
-            onClick={() => handleAccept(booking.bookingId)}
-            className="bg-green-500 text-white px-3 py-1 rounded-full text-sm"
-          >
-            Approve
-          </button>
-          <button 
-            onClick={() => handleDecline(booking.bookingId)}
-            className="bg-red-500 text-white px-3 py-1 rounded-full text-sm"
-          >
-            Reject
-          </button>
-        </div>
-      )}
-    </div>
-  </div>
-))}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

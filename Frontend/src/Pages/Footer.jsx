@@ -39,14 +39,6 @@ function Footer() {
       </div>
     <div className='flex flex-row font-simplon justify-between items-center  gap-5 p-10 text-white'>
       <p >© MegaCity. All rights reserved.</p>
-      <div className='w-[25vw] flex flex-row gap-3 border-l-2 border-r-2 p-3 border-gray-400'>
-      <input
-            type="email"
-            placeholder="Your Email Here"
-            className="w-full px-3  text-black outline-none focus:ring-transparent rounded-xl"
-          />
-        <button className='bg-blue-950 px-3 py-2 font-simplon rounded-xl uppercase'>Subscribe</button>
-      </div>
       <img src={Payment} alt="" className='w-[15vw] px-5' />
     </div>
     </div>

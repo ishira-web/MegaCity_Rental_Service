@@ -67,23 +67,48 @@ public class DriverService {
     public List<Driver> getDriversByStatus(String status) {
         return driverRepository.findByDriverStatues(status);
     }
+    
 
-    // Update a Driver's details
+    // Update a Driver
     public Driver updateDriver(String driverID, Driver updatedDriver) {
         Driver driver = getDriverByID(driverID);
         if (driver != null) {
-            driver.setDriverName(updatedDriver.getDriverName());
-            driver.setDriverStatues(updatedDriver.getDriverStatues()); // Ensure status is updated
-            driver.setDriverPhone(updatedDriver.getDriverPhone());
-            driver.setDriverAddress(updatedDriver.getDriverAddress());
-            driver.setCurrentLocation(updatedDriver.getCurrentLocation());
-            driver.setVehicalNumber(updatedDriver.getVehicalNumber());
-            driver.setCatID(updatedDriver.getCatID());
-            driver.setCatModel(updatedDriver.getCatModel());
-            driver.setAcType(updatedDriver.getAcType());
-            driver.setLagguageType(updatedDriver.getLagguageType());
-            driver.setNoOfSeats(updatedDriver.getNoOfSeats());
-            driver.setCarImageUrl(updatedDriver.getCarImageUrl());
+            if (updatedDriver.getDriverName() != null) {
+                driver.setDriverName(updatedDriver.getDriverName());
+            }
+            if (updatedDriver.getDriverStatues() != null) {
+                driver.setDriverStatues(updatedDriver.getDriverStatues());
+            }
+            if (updatedDriver.getDriverPhone() != null) {
+                driver.setDriverPhone(updatedDriver.getDriverPhone());
+            }
+            if (updatedDriver.getDriverAddress() != null) {
+                driver.setDriverAddress(updatedDriver.getDriverAddress());
+            }
+            if (updatedDriver.getCurrentLocation() != null) {
+                driver.setCurrentLocation(updatedDriver.getCurrentLocation());
+            }
+            if (updatedDriver.getVehicalNumber() != null) {
+                driver.setVehicalNumber(updatedDriver.getVehicalNumber());
+            }
+            if (updatedDriver.getCatID() != null) {
+                driver.setCatID(updatedDriver.getCatID());
+            }
+            if (updatedDriver.getCatModel() != null) {
+                driver.setCatModel(updatedDriver.getCatModel());
+            }
+            if (updatedDriver.getAcType() != null) {
+                driver.setAcType(updatedDriver.getAcType());
+            }
+            if (updatedDriver.getLagguageType() != null) {
+                driver.setLagguageType(updatedDriver.getLagguageType());
+            }
+            if (updatedDriver.getNoOfSeats() != null) {
+                driver.setNoOfSeats(updatedDriver.getNoOfSeats());
+            }
+            if (updatedDriver.getCarImageUrl() != null) {
+                driver.setCarImageUrl(updatedDriver.getCarImageUrl());
+            }
             driverRepository.save(driver);
             return driver;
         }
@@ -123,4 +148,9 @@ public Driver getPendingDriverById(String driverID) {
     return null;
 }
 
+// Get All Drivers
+public List<Driver> getAllDrivers() {
+    return driverRepository.findAll();
+
+}
 }

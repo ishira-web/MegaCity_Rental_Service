@@ -234,10 +234,10 @@ const BookingForm = () => {
     setLoading(true);
     try {
       const response = await axios.post('http://localhost:8080/auth/booking/create', bookingData);
-      if (response.status === 200) {
+      if (response.status == 200) {
         navigate('/reciept', { state: { bookingDetails: response.data } });
       } else {
-        setError("Booking creation failed. Please try again.");
+       ""
       }
     } catch (err) {
       console.error("Error creating booking:", err);

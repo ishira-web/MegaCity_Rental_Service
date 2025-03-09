@@ -89,7 +89,7 @@ public class BookingController {
     }
 
     // Confirm booking
-    @PutMapping("/auth/confirm/{bookingId}")
+    @PostMapping("/auth/confirm/{bookingId}")
     public ResponseEntity<?> confirmBooking(@PathVariable String bookingId) {
         try {
             boolean confirmed = bookingService.confirmBooking(bookingId);
@@ -106,7 +106,7 @@ public class BookingController {
     }
 
     // End trip and make driver available
-    @PutMapping("/auth/end/{bookingId}")
+    @PostMapping("/auth/end/{bookingId}")
     public ResponseEntity<?> endTrip(@PathVariable String bookingId) {
         try {
             boolean ended = bookingService.endTrip(bookingId);

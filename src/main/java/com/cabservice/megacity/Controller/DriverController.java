@@ -164,19 +164,36 @@ public class DriverController {
     public ResponseEntity<List<Driver>> getAvailableDrivers() {
         return ResponseEntity.ok(service.getDriversByStatus("Available"));
     }
+    
 
+    /**
+     * Retrieves all drivers.
+     */
+    @GetMapping("/auth/allDrivers")
+    public ResponseEntity<List<Driver>> getAllDrivers() {
+        return ResponseEntity.ok(service.getAllDrivers());
+    }
 
 
     /**
      * Updates a driver.
      */
-    @PutMapping("/driver/{driverID}")
-    public ResponseEntity<Driver> updateDriver(@PathVariable String driverID, @RequestBody Driver updatedDriver) {
+    // Endpoint to update a driver's details
+    @PutMapping("/auth/updatedriver/{driverID}")
+    public ResponseEntity<Driver> updateDriver(
+            @PathVariable String driverID,
+            @RequestBody Driver updatedDriver) {
+        
+        // Call the service method to update the driver
         Driver driver = service.updateDriver(driverID, updatedDriver);
+        
         if (driver != null) {
+            // Return the updated driver with HTTP 200 OK
             return ResponseEntity.ok(driver);
+        } else {
+            // If the driver is not found, return HTTP 404 Not Found
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
     }
 
     /**

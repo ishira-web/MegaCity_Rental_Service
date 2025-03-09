@@ -83,44 +83,48 @@ function NavbarUser() {
             {user.username?.charAt(0).toUpperCase() ?? 'U'}
           </div>
 
-          {/* Popup Menu */}
-          {isPopupOpen && (
-            <div
-              ref={profileMenuRef}
-              className="absolute top-14 right-0 bg-white shadow-md rounded-md w-48 p-1 z-50"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the popup
-            >
-              <ul>
-                {role === 'ROLE_DRIVER' ? (
-                  <li>
-                    <Link
-                      to={`/driver-profile/${userId}`} // Use backticks for template literals
-                      className="block px-4 py-2 text-white font-semibold bg-blue-600 hover:bg-slate-200 hover:text-black text-center rounded-md"
-                    >
-                      Driver
-                    </Link>
-                  </li>
-                ) : (
-                  <li>
-                    <Link
-                      to={`/user-profile/${userId}`} // Use backticks for template literals
-                      className="block px-4 py-2 text-white font-semibold bg-blue-600 hover:bg-slate-200 hover:text-black text-center rounded-md"
-                    >
-                      Profile
-                    </Link>
-                  </li>
-                )}
-                <li>
-                  <button
-                    onClick={handleLogout} // Call the handleLogout function
-                    className="block w-full text-white font-semibold px-4 py-2 hover:bg-slate-200 bg-red-500 hover:text-black rounded-md text-center"
-                  >
-                    Log out
-                  </button>
-                </li>
-              </ul>
-            </div>
-          )}
+         {/* Profile Popup Menu */}
+{isPopupOpen && (
+  <div
+    ref={profileMenuRef}
+    className="absolute top-14 right-0 bg-white shadow-lg rounded-lg w-48 py-2 z-50 border border-gray-200"
+    onClick={(e) => e.stopPropagation()}
+  >
+    {/* Dropdown Arrow */}
+    <div className="absolute -top-2 right-5 w-4 h-4 bg-white rotate-45 border-l border-t border-gray-200"></div>
+
+    <ul className="space-y-1">
+      {role === 'ROLE_DRIVER' ? (
+        <li>
+          <Link
+            to={`/driver-profile/${userId}`}
+            className="flex items-center px-4 py-2 text-gray-700 font-medium hover:bg-blue-50 rounded-md transition-all"
+          >
+            <User className="w-5 h-5 mr-2 text-blue-600" /> Driver Profile
+          </Link>
+        </li>
+      ) : (
+        <li>
+          <Link
+            to={`/user-profile/${userId}`}
+            className="flex items-center px-4 py-2 text-gray-700 font-medium hover:bg-blue-50 rounded-md transition-all"
+          >
+            <User className="w-5 h-5 mr-2 text-blue-600" /> Customer Profile
+          </Link>
+        </li>
+      )}
+      <li>
+        <button
+          onClick={handleLogout}
+          className="flex items-center w-full text-left px-4 py-2 text-red-600 font-medium hover:bg-red-50 rounded-md transition-all"
+        >
+          <LogOut className="w-5 h-5 mr-2" /> Log out
+        </button>
+      </li>
+    </ul>
+  </div>
+)}
+
         </div>
       ) : (
         <Link to="/login">
